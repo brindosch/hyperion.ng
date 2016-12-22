@@ -12,10 +12,12 @@
 #include <QStringList>
 #include <QCryptographicHash>
 #include <QFile>
+#include <QFileInfo>
 
 // hyperion include
 #include <hyperion/Hyperion.h>
 #include <hyperion/ImageProcessorFactory.h>
+#include <hyperion/ImageProcessor.h>
 #include <hyperion/ColorTransform.h>
 #include <hyperion/ColorAdjustment.h>
 
@@ -32,7 +34,7 @@
 
 Hyperion* Hyperion::_hyperion = nullptr;
 
-Hyperion* Hyperion::initInstance(const QJsonObject& qjsonConfig, const std::string configFile) // REMOVE jsonConfig variable when the conversion from jsonCPP to QtJSON is finished
+Hyperion* Hyperion::initInstance(const QJsonObject& qjsonConfig, const QString configFile) // REMOVE jsonConfig variable when the conversion from jsonCPP to QtJSON is finished
 {
 	if ( Hyperion::_hyperion != nullptr )
 		throw std::runtime_error("Hyperion::initInstance can be called only one time");
@@ -514,7 +516,7 @@ MessageForwarder * Hyperion::getForwarder()
 	return _messageForwarder;
 }
 
-Hyperion::Hyperion(const QJsonObject &qjsonConfig, const std::string configFile)
+Hyperion::Hyperion(const QJsonObject &qjsonConfig, const QString configFile)
 	: _ledString(createLedString(qjsonConfig["leds"], createColorOrder(qjsonConfig["device"].toObject())))
 	, _ledStringClone(createLedStringClone(qjsonConfig["leds"], createColorOrder(qjsonConfig["device"].toObject())))
 	, _muxer(_ledString.leds().size())
@@ -558,10 +560,9 @@ Hyperion::Hyperion(const QJsonObject &qjsonConfig, const std::string configFile)
 	InfoIf(_colorAdjustmentV4Lonly , _log, "Color adjustment for v4l inputs only" );
 	
 	// initialize the image processor factory
-	ImageProcessorFactory::getInstance().init(
-				_ledString,
-				qjsonConfig["blackborderdetector"].toObject()
-	);
+	_ledMAppingType = ImageProcessor::mappingTypeToInt(color["imageToLedMappingType"].toString());
+	ImageProcessorFactory::getInstance().init(_ledString, qjsonConfig["blackborderdetector"].toObject(),_ledMAppingType );
+	
 	getComponentRegister().componentStateChanged(hyperion::COMP_FORWARDER, _messageForwarder->forwardingEnabled());
 
 	// initialize leddevices
@@ -582,6 +583,7 @@ Hyperion::Hyperion(const QJsonObject &qjsonConfig, const std::string configFile)
 	Debug(_log,"configured leds: %d hw leds: %d", getLedCount(), _hwLedCount);
 	WarningIf(hwLedCount < getLedCount(), _log, "more leds configured than available. check 'ledCount' in 'device' section");
 
+	WarningIf(!configWriteable(), _log, "Your config is not writeable - you won't be able to use the web ui for configuration.");
 	// initialize hash of current config
 	configModified();
 
@@ -618,7 +620,7 @@ unsigned Hyperion::getLedCount() const
 bool Hyperion::configModified()
 {
 	bool isModified = false;
-	QFile f(_configFile.c_str());
+	QFile f(_configFile);
 	if (f.open(QFile::ReadOnly))
 	{
 		QCryptographicHash hash(QCryptographicHash::Sha1);
@@ -638,6 +640,14 @@ bool Hyperion::configModified()
 
 	return isModified;
 }
+
+bool Hyperion::configWriteable()
+{
+	QFile file(_configFile);
+	QFileInfo fileInfo(file);
+	return fileInfo.isWritable() && fileInfo.isReadable();
+}
+
 
 void Hyperion::registerPriority(const std::string name, const int priority)
 {
@@ -726,6 +736,14 @@ void Hyperion::setColors(int priority, const std::vector<ColorRgb>& ledColors, c
 	if (! _sourceAutoSelectEnabled || priority == _muxer.getCurrentPriority())
 	{
 		update();
+	}
+}
+
+void Hyperion::setImage(int priority, const Image<ColorRgb> & image, int duration_ms)
+{
+	if (priority == getCurrentPriority())
+	{
+		emit emitImage(priority, image, duration_ms);
 	}
 }
 
@@ -832,6 +850,12 @@ int Hyperion::setEffect(const QString &effectName, int priority, int timeout)
 int Hyperion::setEffect(const QString &effectName, const QJsonObject &args, int priority, int timeout, QString pythonScript)
 {
 	return _effectEngine->runEffect(effectName, args, priority, timeout, pythonScript);
+}
+
+void Hyperion::setLedMappingType(int mappingType)
+{
+	_ledMAppingType = mappingType;
+	emit imageToLedsMappingChanged(mappingType);
 }
 
 void Hyperion::update()

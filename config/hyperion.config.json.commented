@@ -16,18 +16,22 @@
 	///  APA102, WS2801, P9813, LPD6803, LPD8806, ---------PWM---------, WS2812b (just RPi1), WS281X (RPi1, RPi2, RPi3), --------OTHER--------, PhilipsHUE, AtmoOrb, PiBlaster, Tinkerforge, FadeCandy, RawHID (USB), UDP, SEDU, TPM2, USBASP-WS2801, USBASP-WS2812, ------3rd PARTY------, Adalight, AdalightAPA102, Atmo, Lightpack, Multi-Lightpack, Paintpack, Test (file), None)
 	/// * [device type specific configuration]
 	/// * 'colorOrder' : The order of the color bytes ('rgb', 'rbg', 'bgr', etc.).
+	/// * 'rewriteTime': in ms. Data is resend to leds, if no new data is available in thistime. 0 means no refresh
 	"device" :
 	{
 		"name"       : "MyHyperionConfig",
 		"type"       : "file",
 		"output"     : "/dev/null",
 		"rate"     : 1000000,
-		"colorOrder" : "rgb"
+		"colorOrder" : "rgb",
+		"rewriteTime": 0
 	},
 
 	/// Color manipulation configuration used to tune the output colors to specific surroundings. 
 	/// The configuration contains a list of color-transforms. Each transform contains the 
 	/// following fields:
+	///  * 'imageToLedMappingType'      : multicolor_mean - every led has it's own calculatedmean color
+	///                                   unicolor_mean   - every led has same color, color is the mean of whole image
 	///  * 'channelAdjustment_enable'   : true/false enables/disables this channelAdjustment section
 	///  * 'channelAdjustment_v4l_only' : if enabled and set to true, then channelAdjustment is only for v4l devices
 	///  * 'channelAdjustment'
@@ -54,6 +58,7 @@
 	///            - 'gamma'           The gamma-curve correction factor
 	"color" :
 	{
+		"imageToLedMappingType" : "multicolor_mean",
 		"channelAdjustment_enable" : true,
 		"channelAdjustment_v4l_only" : true,
 		"channelAdjustment" :
@@ -151,6 +156,10 @@
 	///  * redSignalThreshold   : Signal threshold for the red channel between 0.0 and 1.0 [default=0.0]
 	///  * greenSignalThreshold : Signal threshold for the green channel between 0.0 and 1.0 [default=0.0]
 	///  * blueSignalThreshold  : Signal threshold for the blue channel between 0.0 and 1.0 [default=0.0]
+	///  * signalDetectionVerticalOffsetMin   : area for signal detection - horizontal minimum offset value. Values between 0.0 and 1.0
+	///  * signalDetectionHorizontalOffsetMin : area for signal detection - vertical minimum offset value. Values between 0.0 and 1.0
+	///  * signalDetectionVerticalOffsetMax   : area for signal detection - horizontal maximum offset value. Values between 0.0 and 1.0
+	///  * signalDetectionHorizontalOffsetMax : area for signal detection - vertical maximum offset value. Values between 0.0 and 1.0
 	"grabberV4L2" :
 	[
 		{
@@ -171,7 +180,11 @@
 			"cropBottom"  : 0,
 			"redSignalThreshold"   : 0.0,
 			"greenSignalThreshold" : 0.0,
-			"blueSignalThreshold"  : 0.0
+			"blueSignalThreshold"  : 0.0,
+			"signalDetectionVerticalOffsetMin"   : 0.25,
+			"signalDetectionHorizontalOffsetMin" : 0.25,
+			"signalDetectionVerticalOffsetMax"   : 0.75,
+			"signalDetectionHorizontalOffsetMax" : 0.75
 		}
 	],
 
