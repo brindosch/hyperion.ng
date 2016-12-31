@@ -2,6 +2,7 @@
 	"general" :
 	{
 		"name"       : "MyHyperionConfig",
+		"showOptHelp" : true,
 		"configVersion" : 2
 	},
 	"logger" :

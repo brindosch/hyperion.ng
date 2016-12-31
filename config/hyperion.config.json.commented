@@ -6,10 +6,12 @@
 {
 	/// geenral Settings 
 	/// * 'name'          : The user friendly name of the hyperion instance (used for network things)
-	/// * 'configVersion' : don't touch it's an internal value regarding which validation schema for this config is used
+	/// * 'showOptHelp'   : Show option expanations at the webui. Highly recommended for beginners.
+	/// * 'configVersion' : Don't touch! It's an internal value regarding which validation schema for this config is used.
 	"general" :
 	{
 		"name"       : "MyHyperionConfig",
+		"showOptHelp" : true,
 		"configVersion" : 2
 	},
 	/// set log level: silent warn verbose debug
