@@ -245,10 +245,7 @@ void HyperionDaemon::startInitialEffect()
 		else if (! fgEffectConfig.isNull() && fgEffectConfig.isArray() && FGCONFIG_ARRAY.size() == 1 && FGCONFIG_ARRAY.at(0).isString())
 		{
 			const QString fgEffectName = FGCONFIG_ARRAY.at(0).toString();
-			int result = effectConfig.contains("foreground-effect-args")
-//			           ? hyperion->setEffect(fgEffectName, effectConfig["foreground-effect-args"], FG_PRIORITY, fg_duration_ms)
-			           ? hyperion->setEffect(fgEffectName, _qconfig["initialEffect"].toObject()["foreground-effect-args"].toObject(), FG_PRIORITY, fg_duration_ms)
-			           : hyperion->setEffect(fgEffectName, FG_PRIORITY, fg_duration_ms);
+			int result = hyperion->setEffect(fgEffectName, FG_PRIORITY, fg_duration_ms);
 			Info(_log,"Inital foreground effect '%s' %s", fgEffectName.toUtf8().constData(), ((result == 0) ? "started" : "failed"));
 		}
 
@@ -267,10 +264,7 @@ void HyperionDaemon::startInitialEffect()
 		else if (! bgEffectConfig.isNull() && bgEffectConfig.isArray() && BGCONFIG_ARRAY.size() == 1 && BGCONFIG_ARRAY.at(0).isString())
 		{
 			const QString bgEffectName = BGCONFIG_ARRAY.at(0).toString();
-			int result = effectConfig.contains("background-effect-args")
-//			           ? hyperion->setEffect(bgEffectName, effectConfig["background-effect-args"], BG_PRIORITY, fg_duration_ms)
-			           ? hyperion->setEffect(bgEffectName, _qconfig["initialEffect"].toObject()["background-effect-args"].toObject(), BG_PRIORITY, DURATION_INFINITY)
-			           : hyperion->setEffect(bgEffectName, BG_PRIORITY, DURATION_INFINITY);
+			int result = hyperion->setEffect(bgEffectName, BG_PRIORITY, DURATION_INFINITY);
 			Info(_log,"Inital background effect '%s' %s", bgEffectName.toUtf8().constData(), ((result == 0) ? "started" : "failed"));
 		}
 	}

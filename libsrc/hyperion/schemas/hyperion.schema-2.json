@@ -103,6 +103,7 @@
 				"imageToLedMappingType" :
 				{
 					"type" : "string",
+					"title" : "edt_conf_color_imageToLedMappingType",
 					"enum" : ["multicolor_mean", "unicolor_mean"],
 					"default" : "multicolor_mean",
 					"propertyOrder" : 1
@@ -110,18 +111,21 @@
 				"channelAdjustment_enable" :
 				{
 					"type" : "boolean",
+					"title" : "edt_conf_color_channelAdjustment_enable",
 					"default" : true,
 					"propertyOrder" : 2
 				},
 				"channelAdjustment_v4l_only" :
 				{
 					"type" : "boolean",
+					"title" : "edt_conf_color_channelAdjustment_v4l_only",
 					"default" : false,
 					"propertyOrder" : 3
 				},
 				"channelAdjustment" :
 				{
 					"type" : "array",
+					"title" : "edt_conf_color_channelAdjustment_header_title",
 					"required" : true,
 					"propertyOrder" : 4,
 					"items" :
@@ -133,16 +137,23 @@
 							"id" :
 							{
 								"type" : "string",
-								"required" : true
+								"title" : "edt_conf_color_id",
+								"required" : true,
+								"default" : "A userdefined name",
+								"propertyOrder" : 1
 							},
 							"leds" :
 							{
 								"type" : "string",
+								"title" : "edt_conf_color_leds",
 								"required" : true
+								"default" : "*",
+								"propertyOrder" : 2
 							},
 							"black" :
 							{
 								"type" : "array",
+								"title" : "edt_conf_color_black",
 								"format" : "colorpicker",
 								"required" : true,
 								"default": [0,0,0],
@@ -153,11 +164,12 @@
 								},
 								"minItems" : 3,
 								"maxItems" : 3,
-								"propertyOrder" : 8
+								"propertyOrder" : 3
 							},
 							"white" :
 							{
 								"type" : "array",
+								"title" : "edt_conf_color_white",
 								"format" : "colorpicker",
 								"required" : true,
 								"default": [255,255,255],
@@ -168,11 +180,12 @@
 								},
 								"minItems" : 3,
 								"maxItems" : 3,
-								"propertyOrder" : 1
+								"propertyOrder" : 4
 							},
 							"red" :
 							{
 								"type" : "array",
+								"title" : "edt_conf_color_red",
 								"format" : "colorpicker",
 								"required" : true,
 								"default": [255,0,0],
@@ -183,11 +196,12 @@
 								},
 								"minItems" : 3,
 								"maxItems" : 3,
-								"propertyOrder" : 2
+								"propertyOrder" : 5
 							},
 							"green" :
 							{
 								"type" : "array",
+								"title" : "edt_conf_color_green",
 								"format" : "colorpicker",
 								"required" : true,
 								"default": [0,255,0],
@@ -198,11 +212,12 @@
 								},
 								"minItems" : 3,
 								"maxItems" : 3,
-								"propertyOrder" : 3
+								"propertyOrder" : 6
 							},
 							"blue" :
 							{
 								"type" : "array",
+								"title" : "edt_conf_color_blue",
 								"format" : "colorpicker",
 								"required" : true,
 								"default": [0,0,255],
@@ -213,11 +228,12 @@
 								},
 								"minItems" : 3,
 								"maxItems" : 3,
-								"propertyOrder" : 4
+								"propertyOrder" : 7
 							},
 							"cyan" :
 							{
 								"type" : "array",
+								"title" : "edt_conf_color_cyan",
 								"format" : "colorpicker",
 								"required" : true,
 								"default": [0,255,255],
@@ -228,11 +244,12 @@
 								},
 								"minItems" : 3,
 								"maxItems" : 3,
-								"propertyOrder" : 5
+								"propertyOrder" : 8
 							},
 							"magenta" :
 							{
 								"type" : "array",
+								"title" : "edt_conf_color_magenta",
 								"format" : "colorpicker",
 								"required" : true,
 								"default": [255,0,255],
@@ -243,11 +260,12 @@
 								},
 								"minItems" : 3,
 								"maxItems" : 3,
-								"propertyOrder" : 6
+								"propertyOrder" : 9
 							},
 							"yellow" :
 							{
 								"type" : "array",
+								"title" : "edt_conf_color_yellow",
 								"format" : "colorpicker",
 								"required" : true,
 								"default": [255,255,0],
@@ -258,7 +276,7 @@
 								},
 								"minItems" : 3,
 								"maxItems" : 3,
-								"propertyOrder" : 7
+								"propertyOrder" : 10
 							}
 						},
 						"additionalProperties" : false
@@ -973,21 +991,11 @@
 					"title" : "Background effect",
 					"propertyOrder" : 3
 				},
-				"background-effect-args" :
-				{
-					"type" : "object",
-					"title" : "Background effect arguments"
-				},
 				"foreground-effect" :
 				{
 					"type" : "array",
 					"title" : "Boot effect",
 					"propertyOrder" : 1
-				},
-				"foreground-effect-args" :
-				{
-					"type" : "object",
-					"title" : "Boot effect arguments"
 				},
 				"foreground-duration_ms" :
 				{
