@@ -146,7 +146,7 @@
 							{
 								"type" : "string",
 								"title" : "edt_conf_color_leds",
-								"required" : true
+								"required" : true,
 								"default" : "*",
 								"propertyOrder" : 2
 							},
