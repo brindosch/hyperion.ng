@@ -1021,7 +1021,7 @@
 				{
 					"type" : "string",
 					"title" : "Background effect",
-					"enum" : ["Warm mood blobs"],
+					"enum" : ["Warm mood blobs","Rainbow swirl fast"],
 					"default" : "Warm mood blobs",
 					"propertyOrder" : 4
 				},
@@ -1059,7 +1059,7 @@
 				{
 					"type" : "string",
 					"title" : "Background effect",
-					"enum" : ["Rainbow swirl fast"],
+					"enum" : ["Rainbow swirl fast", "Warm mood blobs"],
 					"default" : "Rainbow swirl fast",
 					"propertyOrder" : 8
 				},
