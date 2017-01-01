@@ -1005,7 +1005,7 @@
 				"background-color" :
 				{
 					"type" : "array",
-					"format" : "colorpicker"
+					"format" : "colorpicker",
 					"title" : "edt_conf_inieff_background-color_title",
 					"default" : [255,138,0],
 					"items" : {
@@ -1043,7 +1043,7 @@
 				"foreground-color" :
 				{
 					"type" : "array",
-					"format" : "colorpicker"
+					"format" : "colorpicker",
 					"title" : "Background effect",
 					"default" : [255,0,0],
 					"items" : {
