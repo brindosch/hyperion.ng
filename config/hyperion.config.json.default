@@ -144,17 +144,21 @@
 		"enable3DDetection" : false
 	},
 
-	"initialEffect" :
+	"foregroundEffect" :
 	{
-		"background-enable"      : true,
-		"background-type"        : "effect",
-		"background-color"       : [255,138,0],
-		"background-effect"      : "Warm mood blobs",
-		"foreground-enable"      : true,
-		"foreground-type"        : "effect",
-		"foreground-color"       : [255,0,0],
-		"foreground-effect"      : "Rainbow swirl fast",
-		"foreground-duration_ms" : 3000
+		"enable"      : true,
+		"type"        : "effect",
+		"color"       : [0,0,255],
+		"effect"      : "Rainbow swirl fast",
+		"duration_ms" : 3000
+	},
+	
+	"backgroundEffect" :
+	{
+		"enable"      : true,
+		"type"        : "effect",
+		"color"       : [255,138,0],
+		"effect"      : "Warm mood blobs",
 	},
 
 	"forwarder" :
