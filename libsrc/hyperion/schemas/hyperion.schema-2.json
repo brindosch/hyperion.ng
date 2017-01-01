@@ -1020,6 +1020,7 @@
 				"background-effect" :
 				{
 					"type" : "string",
+					"format" : "select",
 					"title" : "Background effect",
 					"propertyOrder" : 4
 				},
@@ -1056,6 +1057,7 @@
 				"foreground-effect" :
 				{
 					"type" : "string",
+					"format" : "select",
 					"title" : "Background effect",
 					"propertyOrder" : 8
 				},
