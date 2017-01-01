@@ -158,7 +158,7 @@
 		"enable"      : true,
 		"type"        : "effect",
 		"color"       : [255,138,0],
-		"effect"      : "Warm mood blobs",
+		"effect"      : "Warm mood blobs"
 	},
 
 	"forwarder" :

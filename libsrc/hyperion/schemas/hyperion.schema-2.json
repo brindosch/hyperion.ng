@@ -1032,7 +1032,7 @@
 					"type" : "integer",
 					"title" : "edt_conf_fge_duration_ms_title",
 					"default" : 3000,
-					"append" : "edt_append_ms"
+					"append" : "edt_append_ms",
 					"propertyOrder" : 5
 				}
 			},
