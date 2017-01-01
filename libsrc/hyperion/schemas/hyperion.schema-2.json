@@ -981,32 +981,92 @@
 			},
 			"additionalProperties" : false
 		},
-		"initialEffect" :
+		"foregroundEffect" :
 		{
 			"type" : "object",
-			"title" : "edt_conf_inieff_heading_title",
+			"title" : "edt_conf_fge_heading_title",
 			"properties" :
 			{
-				"background-enable" :
+				"enable" :
 				{
 					"type" : "boolean",
-					"title" : "edt_conf_inieff_background-enable_title",
+					"title" : "edt_conf_general_enable_title",
 					"default" : true,
 					"propertyOrder" : 1
 				},
-				"background-type" :
+				"type" :
 				{
 					"type" : "string",
-					"title" : "edt_conf_inieff_background-type_title",
+					"title" : "edt_conf_fge_type_title",
 					"enum" : ["color", "effect"],
 					"default" : "effect",
+					"options" : {
+						"enum_titles" : ["edt_conf_enum_color", "edt_conf_enum_effect"]
+					},
 					"propertyOrder" : 2
 				},
-				"background-color" :
+				"color" :
 				{
 					"type" : "array",
 					"format" : "colorpicker",
-					"title" : "edt_conf_inieff_background-color_title",
+					"title" : "edt_conf_fge_color_title",
+					"default" : [255,0,0],
+					"items" : {
+						"type" : "integer",
+						"minimum" : 0,
+						"maximum" : 255
+					},
+					"minItems" : 3,
+					"maxItems" : 3,
+					"propertyOrder" : 3
+				},
+				"effect" :
+				{
+					"type" : "string",
+					"format" : "select",
+					"title" : "edt_conf_fge_effect_title",
+					"propertyOrder" : 4
+				},
+				"duration_ms" :
+				{
+					"type" : "integer",
+					"title" : "edt_conf_fge_duration_ms_title",
+					"default" : 3000,
+					"append" : "edt_append_ms"
+					"propertyOrder" : 5
+				}
+			},
+			"additionalProperties" : false
+		},
+		"backgroundEffect" :
+		{
+			"type" : "object",
+			"title" : "edt_conf_bge_heading_title",
+			"properties" :
+			{
+				"enable" :
+				{
+					"type" : "boolean",
+					"title" : "edt_conf_general_enable_title",
+					"default" : true,
+					"propertyOrder" : 1
+				},
+				"type" :
+				{
+					"type" : "string",
+					"title" : "edt_conf_fge_type_title",
+					"enum" : ["color", "effect"],
+					"default" : "effect",
+					"options" : {
+						"enum_titles" : ["edt_conf_enum_color", "edt_conf_enum_effect"]
+					},
+					"propertyOrder" : 2
+				},
+				"color" :
+				{
+					"type" : "array",
+					"format" : "colorpicker",
+					"title" : "edt_conf_fge_color_title",
 					"default" : [255,138,0],
 					"items" : {
 						"type" : "integer",
@@ -1017,56 +1077,12 @@
 					"maxItems" : 3,
 					"propertyOrder" : 3
 				},
-				"background-effect" :
+				"effect" :
 				{
 					"type" : "string",
 					"format" : "select",
-					"title" : "Background effect",
+					"title" : "edt_conf_fge_effect_title",
 					"propertyOrder" : 4
-				},
-				"foreground-enable" :
-				{
-					"type" : "boolean",
-					"title" : "Background effect",
-					"default" : true,
-					"propertyOrder" : 5
-				},
-				"foreground-type" :
-				{
-					"type" : "string",
-					"title" : "Background effect",
-					"enum" : ["color", "effect"],
-					"default" : "effect",
-					"propertyOrder" : 6
-				},
-				"foreground-color" :
-				{
-					"type" : "array",
-					"format" : "colorpicker",
-					"title" : "Background effect",
-					"default" : [255,0,0],
-					"items" : {
-						"type" : "integer",
-						"minimum" : 0,
-						"maximum" : 255
-					},
-					"minItems" : 3,
-					"maxItems" : 3,
-					"propertyOrder" : 7
-				},
-				"foreground-effect" :
-				{
-					"type" : "string",
-					"format" : "select",
-					"title" : "Background effect",
-					"propertyOrder" : 8
-				},
-				"foreground-duration_ms" :
-				{
-					"type" : "integer",
-					"title" : "Boot effect duration",
-					"default" : 3000,
-					"propertyOrder" : 9
 				}
 			},
 			"additionalProperties" : false
