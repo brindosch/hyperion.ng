@@ -1021,7 +1021,6 @@
 				{
 					"type" : "string",
 					"title" : "Background effect",
-					"enum" : [""],
 					"propertyOrder" : 4
 				},
 				"foreground-enable" :
@@ -1058,7 +1057,6 @@
 				{
 					"type" : "string",
 					"title" : "Background effect",
-					"enum" : [""],
 					"propertyOrder" : 8
 				},
 				"foreground-duration_ms" :
