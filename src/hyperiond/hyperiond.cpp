@@ -226,7 +226,7 @@ void HyperionDaemon::startInitialEffect()
 		// initial foreground effect/color
 		if (effectConfig["foreground-enable"].toBool(true))
 		{
-			const QJsonValue fgTypeConfig = effectConfig["foreground-type"];
+			const QString fgTypeConfig = effectConfig["foreground-type"].toString("effect");
 			const QJsonValue fgEffectConfig = effectConfig["foreground-effect"];
 			const QJsonValue fgColorConfig = effectConfig["foreground-color"];
 			int default_fg_duration_ms = 3000;
@@ -256,7 +256,7 @@ void HyperionDaemon::startInitialEffect()
 		// initial background effect/color
 		if (effectConfig["background-enable"].toBool(true))
 		{
-			const QJsonValue bgTypeConfig = effectConfig["background-type"];
+			const QString bgTypeConfig = effectConfig["background-type"].toString("effect");
 			const QJsonValue bgEffectConfig = effectConfig["background-effect"];
 			const QJsonValue bgColorConfig = effectConfig["background-color"];
 			if (bgTypeConfig.contains("color"))
