@@ -1021,8 +1021,7 @@
 				{
 					"type" : "string",
 					"title" : "Background effect",
-					"enum" : ["Warm mood blobs","Rainbow swirl fast"],
-					"default" : "Warm mood blobs",
+					"enum" : [""],
 					"propertyOrder" : 4
 				},
 				"foreground-enable" :
@@ -1059,8 +1058,7 @@
 				{
 					"type" : "string",
 					"title" : "Background effect",
-					"enum" : ["Rainbow swirl fast", "Warm mood blobs"],
-					"default" : "Rainbow swirl fast",
+					"enum" : [""],
 					"propertyOrder" : 8
 				},
 				"foreground-duration_ms" :
