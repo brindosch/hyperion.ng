@@ -833,7 +833,6 @@
 		{
 			"type" : "object",
 			"title" : "edt_conf_bb_heading_title",
-			"defaultProperties": ["enable","mode","threshold"],
 			"properties" :
 			{
 				"enable" :
@@ -860,6 +859,7 @@
 					"title" : "edt_conf_bb_unknownFrameCnt_title",
 					"minimum" : 0,
 					"default" : 600,
+					"access" : "expert",
 					"propertyOrder" : 3
 				},
 				"borderFrameCnt" :
@@ -868,6 +868,7 @@
 					"title" : "edt_conf_bb_borderFrameCnt_title",
 					"minimum" : 0,
 					"default" : 50,
+					"access" : "expert",
 					"propertyOrder" : 4
 				},
 				"maxInconsistentCnt" :
@@ -876,6 +877,7 @@
 					"title" : "edt_conf_bb_maxInconsistentCnt_title",
 					"minimum" : 0,
 					"default" : 10,
+					"access" : "expert",
 					"propertyOrder" : 5
 				},
 				"blurRemoveCnt" :
@@ -884,6 +886,7 @@
 					"title" : "edt_conf_bb_blurRemoveCnt_title",
 					"minimum" : 0,
 					"default" : 1,
+					"access" : "expert",
 					"propertyOrder" : 6
 				},
 				"mode" :
@@ -981,27 +984,91 @@
 		"initialEffect" :
 		{
 			"type" : "object",
-			"title" : "Initial Effect",
-			"defaultProperties": ["background-effect","foreground-effect","foreground-duration_ms"],
+			"title" : "edt_conf_inieff_heading_title",
 			"properties" :
 			{
-				"background-effect" :
+				"background-enable" :
+				{
+					"type" : "boolean",
+					"title" : "edt_conf_inieff_background-enable_title",
+					"default" : true,
+					"propertyOrder" : 1
+				},
+				"background-type" :
+				{
+					"type" : "string",
+					"title" : "edt_conf_inieff_background-type_title",
+					"enum" : ["color", "effect"],
+					"default" : "effect",
+					"propertyOrder" : 2
+				},
+				"background-color" :
 				{
 					"type" : "array",
-					"title" : "Background effect",
+					"format" : "colorpicker"
+					"title" : "edt_conf_inieff_background-color_title",
+					"default" : [255,138,0],
+					"items" : {
+						"type" : "integer",
+						"minimum" : 0,
+						"maximum" : 255
+					},
+					"minItems" : 3,
+					"maxItems" : 3,
 					"propertyOrder" : 3
+				},
+				"background-effect" :
+				{
+					"type" : "string",
+					"title" : "Background effect",
+					"enum" : ["Warm mood blobs"],
+					"default" : "Warm mood blobs",
+					"propertyOrder" : 4
+				},
+				"foreground-enable" :
+				{
+					"type" : "boolean",
+					"title" : "Background effect",
+					"default" : true,
+					"propertyOrder" : 5
+				},
+				"foreground-type" :
+				{
+					"type" : "string",
+					"title" : "Background effect",
+					"enum" : ["color", "effect"],
+					"default" : "effect",
+					"propertyOrder" : 6
+				},
+				"foreground-color" :
+				{
+					"type" : "array",
+					"format" : "colorpicker"
+					"title" : "Background effect",
+					"default" : [255,0,0],
+					"items" : {
+						"type" : "integer",
+						"minimum" : 0,
+						"maximum" : 255
+					},
+					"minItems" : 3,
+					"maxItems" : 3,
+					"propertyOrder" : 7
 				},
 				"foreground-effect" :
 				{
-					"type" : "array",
-					"title" : "Boot effect",
-					"propertyOrder" : 1
+					"type" : "string",
+					"title" : "Background effect",
+					"enum" : ["Rainbow swirl fast"],
+					"default" : "Rainbow swirl fast",
+					"propertyOrder" : 8
 				},
 				"foreground-duration_ms" :
 				{
 					"type" : "integer",
 					"title" : "Boot effect duration",
-					"propertyOrder" : 2
+					"default" : 3000,
+					"propertyOrder" : 9
 				}
 			},
 			"additionalProperties" : false

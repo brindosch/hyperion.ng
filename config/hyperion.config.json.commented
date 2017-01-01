@@ -273,8 +273,14 @@
 	///                       HINT: Set a empty value if you want to disable a component (example: "")
 	"initialEffect" :
 	{
-		"background-effect"      : ["Warm mood blobs"],
-		"foreground-effect"      : ["Rainbow swirl fast"],
+		"background-enable"      : true,
+		"background-type"        : "effect",
+		"background-color"       : [255,138,0],
+		"background-effect"      : "Warm mood blobs",
+		"foreground-enable"      : true,
+		"foreground-type"        : "effect",
+		"foreground-color"       : [255,0,0],
+		"foreground-effect"      : "Rainbow swirl fast",
 		"foreground-duration_ms" : 3000
 	},
 
