@@ -23,8 +23,8 @@ sleepTime = float(hyperion.args.get('sleepTime', 0.14))
 candles = hyperion.args.get('candles', "all")
 ledlist = hyperion.args.get('ledlist', "1")
 
-brightness/=100
-colorShift/=100
+brightness = float(brightness/100)
+colorShift = float(colorShift/100)
 
 candlelist = ()
 if (candles == "list") and (type(ledlist) is str):
