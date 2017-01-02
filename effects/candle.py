@@ -15,13 +15,16 @@ import random
 
 # Get parameters
 color = hyperion.args.get('color', (255,138,0))
-colorShift = hyperion.args.get('colorShift', 0.01)
-brightness = float(hyperion.args.get('brightness', 0.5))
+colorShift = int(hyperion.args.get('colorShift', 1))
+brightness = int(hyperion.args.get('brightness', 100))
 
 sleepTime = float(hyperion.args.get('sleepTime', 0.14))
 
 candles = hyperion.args.get('candles', "all")
 ledlist = hyperion.args.get('ledlist', "1")
+
+brightness/=100
+colorShift/=100
 
 candlelist = ()
 if (candles == "list") and (type(ledlist) is str):

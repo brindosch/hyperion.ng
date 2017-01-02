@@ -78,6 +78,9 @@
 					"title" : "edt_dev_general_colorOrder_title",
 					"enum" : ["rgb", "bgr", "rbg", "brg", "gbr", "grb"],
 					"default" : "rgb",
+					"options" : {
+						"enum_titles" : ["edt_conf_enum_rgb", "edt_conf_enum_bgr", "edt_conf_enum_rbg", "edt_conf_enum_brg", "edt_conf_enum_gbr", "edt_conf_enum_grb"]
+					},
 					"propertyOrder" : 3
 				},
 				"rewriteTime": {
@@ -106,6 +109,9 @@
 					"title" : "edt_conf_color_imageToLedMappingType",
 					"enum" : ["multicolor_mean", "unicolor_mean"],
 					"default" : "multicolor_mean",
+					"options" : {
+						"enum_titles" : ["edt_conf_enum_multicolor_mean", "edt_conf_enum_unicolor_mean"]
+					},
 					"propertyOrder" : 1
 				},
 				"channelAdjustment_enable" :
@@ -451,6 +457,9 @@
 					"title" : "edt_conf_smooth_type_title",
 					"enum" : ["linear"],
 					"default" : "linear",
+					"options" : {
+						"enum_titles" : ["edt_conf_enum_linear"]
+					},
 					"propertyOrder" : 2
 				},
 				"time_ms" :
@@ -533,6 +542,9 @@
 						"title" : "edt_conf_v4l2_standard_title",
 						"enum" : ["PAL","NTSC"],
 						"default" : "PAL",
+						"options" : {
+							"enum_titles" : ["edt_conf_enum_PAL", "edt_conf_enum_NTSC"]
+						},
 						"propertyOrder" : 4
 					},
 					"width" :
@@ -1032,6 +1044,7 @@
 					"type" : "integer",
 					"title" : "edt_conf_fge_duration_ms_title",
 					"default" : 3000,
+					"minimum" : 100,
 					"append" : "edt_append_ms",
 					"propertyOrder" : 5
 				}
@@ -1289,6 +1302,7 @@
 		"effects" :
 		{
 			"type" : "object",
+			"title" : "edt_conf_effp_heading_title",
 			"properties" :
 			{
 				"paths" :
