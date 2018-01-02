@@ -21,18 +21,18 @@ public:
 	static void registerPluginExtensionModule();
 
 	// json 2 python
-	static PyObject * json2python(const QJsonValue & jsonData);
+	static PyObject* json2python		(const QJsonValue & jsonData);
 
 	// Wrapper methods for Python interpreter extra buildin methods
 	static PyMethodDef pluginMethods[];
-	static PyObject* wrapAbort                 (PyObject *self, PyObject *args);
-	static PyObject* wrapLog                   (PyObject *self, PyObject *args);
-	static PyObject* wrapGetSettings           (PyObject *self, PyObject *args);
-	static PyObject* wrapSetComponentState     (PyObject *self, PyObject *args);
-	static PyObject* wrapSetColor              (PyObject *self, PyObject *args);
-	static PyObject* wrapSetEffect             (PyObject *self, PyObject *args);
-	static Plugin * getPlugin();
+	static PyObject* wrapAbort		(PyObject*, PyObject*);
+	static PyObject* wrapLog		(PyObject*, PyObject* args);
+	static PyObject* wrapGetSettings	(PyObject*, PyObject*);
+	static PyObject* wrapSetComponentState	(PyObject*, PyObject* args);
+	static PyObject* wrapSetColor		(PyObject*, PyObject* args);
+	static PyObject* wrapSetEffect		(PyObject*, PyObject* args);
 
 	// Callback methods
-	static PyObject* wrapOnSettingsChanged         (PyObject *self, PyObject *args);
+	static PyObject* registerCallback	(PyObject*, PyObject* args);
+	static PyObject* unRegisterCallback	(PyObject*, PyObject* args);
 };
