@@ -1,4 +1,3 @@
-
 // proj include
 #include "Plugin.h"
 #include <plugin/PluginModule.h>
@@ -25,11 +24,8 @@ Plugin::Plugin(Plugins* plugins, Hyperion * hyperion, const PluginDefinition& de
 
 Plugin::~Plugin()
 {
-	// decref all callback PyObjects
-	for(auto entry : callbackObjects)
-	{
-		 Py_XDECREF(entry);
-	}
+	// removes all Callbacks
+	callbackObjects.clear();
 }
 
 void Plugin::run()
@@ -52,8 +48,12 @@ void Plugin::run()
 	// import the buildtin plugin module
 	PyObject * module = PyImport_ImportModule("plugin");
 
-	// add a capsule containing 'this' to the module to be able to retrieve the effect from the callback function
-	PyObject_SetAttrString(module, "__pluginObj", PyCapsule_New(this, nullptr, nullptr));
+	// add a capsule containing 'this' to the dict to be able to retrieve the effect from the callback function
+	PyModule_AddObject(module, "__pluginObj", PyCapsule_New((void*)this, "plugin.__pluginObj", nullptr));
+
+	// for callback enums add an integer constant to module as name
+	PyModule_AddIntConstant(module, "ON_COMP_STATE_CHANGED", ON_COMP_STATE_CHANGED);
+	PyModule_AddIntConstant(module, "ON_SETTINGS_CHANGED", ON_SETTINGS_CHANGED);
 
 	// decref the module
 	Py_XDECREF(module);
@@ -345,13 +345,39 @@ void Plugin::handlePluginAction(PluginAction action, QString id, bool success, P
 	// callback for saved actions
 	if(action == P_SAVED && success && id == _id)
 	{
-		for(const auto & key : callbackObjects.keys())
+		auto it = callbackObjects.find("ON_SETTINGS_CHANGED");
+		if (it != callbackObjects.end())
 		{
-			if(key == "onSettingsChanged")
-			{
-				PyObject* result = PyObject_CallObject(callbackObjects.value(key), NULL); // new ref or null
-				Py_XDECREF(result);
-			}
+			// TODO :-)
+			// see function onCompStateChanged() for example
+			// If you need help, just ask
+			return;
 		}
+	}
+}
+
+void Plugin::onCompStateChanged(const hyperion::Components comp, bool state)
+{
+	auto it = callbackObjects.find("ON_COMP_STATE_CHANGED");
+	if (it != callbackObjects.end())
+	{
+		PyObject *data = nullptr;
+
+		// Verify that ON_COMP_STATE_CHANGED is a proper callable
+		if (it.value() && PyCallable_Check(it.value()))
+		{
+			// Acquire GIL
+			acquireGIL lock;
+
+			// Call the callback function and return the result of the call on success, or NULL on failure.
+			data = PyObject_CallFunctionObjArgs(it.value(), PyUnicode_FromString(componentToIdString(comp)), PyBool_FromLong(state), NULL);
+		}
+
+		// handle exception
+		if (!data && PyErr_Occurred())
+			printException();
+
+		// release "data" when done
+		Py_XDECREF(data);
 	}
 }
