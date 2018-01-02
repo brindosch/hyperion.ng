@@ -176,6 +176,10 @@ void Plugins::start(QString id)
 	// listen for pluginActions
 	connect(this, &Plugins::pluginAction, newPlugin, &Plugin::handlePluginAction);
 
+	// listen for componentStateChanged
+	qRegisterMetaType<hyperion::Components>("hyperion::Components");
+	connect(_hyperion, SIGNAL(componentStateChanged(hyperion::Components,bool)), newPlugin, SLOT(onCompStateChanged(hyperion::Components,bool)));
+
 	// start
 	newPlugin->start();
 }
@@ -194,6 +198,7 @@ bool Plugins::stop(const QString& id, const bool& remove) const
 			plugin->setRemoveFlag();
 
 		plugin->requestInterruption();
+		plugin->wait();
 		return true;
 	}
 	return false;
