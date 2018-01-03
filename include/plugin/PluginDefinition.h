@@ -4,7 +4,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-struct PluginDefinition {
+struct PluginDefinition
+{
 	QString         name;
 	QString         description;
 	QString         version;
@@ -18,7 +19,8 @@ struct PluginDefinition {
 	QJsonObject     settings;
 };
 
-enum PluginAction{
+enum PluginAction
+{
 	P_INSTALL,
 	P_INSTALLED,
 	P_REMOVE,
@@ -35,3 +37,30 @@ enum PluginAction{
 	P_UPD_AVAIL,
 	P_UPDATED_AVAIL
 };
+
+// type definition for callback enums
+ typedef enum
+ {
+	ON_COMP_STATE_CHANGED,
+	ON_SETTINGS_CHANGED,
+	CALLBACK_INVALID
+ } callback_type_t;
+
+inline const char* callbackTypeToString(int callback)
+{
+	switch (callback) 
+	{
+		case ON_COMP_STATE_CHANGED:				return "ON_COMP_STATE_CHANGED";
+		case ON_SETTINGS_CHANGED:					return "ON_SETTINGS_CHANGED";
+		default:														return "";
+	}
+}
+
+inline callback_type_t stringToCallbackType(QString string)
+{
+	string = string.toUpper();
+	if (string == "ON_COMP_STATE_CHANGED")	return ON_COMP_STATE_CHANGED;
+	if (string == "ON_SETTINGS_CHANGED")		return ON_SETTINGS_CHANGED;
+
+	return CALLBACK_INVALID;
+}
