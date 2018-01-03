@@ -2,9 +2,9 @@
 // Utils includes
 #include <utils/Image.h>
 #include <utils/jsonschema/QJsonFactory.h>
+#include <utils/hyperion.h>
 
 // Hyperion includes
-#include <hyperion/Hyperion.h>
 #include <hyperion/ImageToLedsMap.h>
 
 using namespace hyperion;
@@ -23,7 +23,7 @@ int main()
 		return -1;
 	}
 
-	const LedString ledString = Hyperion::createLedString(config["leds"], Hyperion::createColorOrder(config["device"].toObject()));
+	const LedString ledString = hyperion::createLedString(config["leds"].toArray(), hyperion::createColorOrder(config["device"].toObject()));
 
 	const ColorRgb testColor = {64, 123, 12};
 
