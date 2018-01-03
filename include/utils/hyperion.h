@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sstream>
 #include <hyperion/ColorAdjustment.h>
 #include <hyperion/MultiColorAdjustment.h>
 #include <hyperion/LedString.h>
