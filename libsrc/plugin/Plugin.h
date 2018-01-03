@@ -15,32 +15,6 @@
 #include <QThread>
 #include <QStringList>
 
-// type definition for callback enums
-typedef enum {
-	ON_COMP_STATE_CHANGED,
-	ON_SETTINGS_CHANGED,
-	CALLBACK_INVALID
-} callback_type_t;
-
-inline const char* callbackTypeToString(int cTTS)
-{
-	switch (cTTS)
-	{
-		case ON_COMP_STATE_CHANGED:	return "ON_COMP_STATE_CHANGED";
-		case ON_SETTINGS_CHANGED:		return "ON_SETTINGS_CHANGED";
-		default:											return "";
-	}
-}
-
-inline callback_type_t stringToCallbackType(QString sTCT)
-{
-	sTCT = sTCT.toUpper();
-	if (sTCT == "ON_COMP_STATE_CHANGED")	return ON_COMP_STATE_CHANGED;
-	if (sTCT == "ON_SETTINGS_CHANGED")			return ON_SETTINGS_CHANGED;
-
-	return CALLBACK_INVALID;
-}
-
 class acquireGIL
 {
 public:
