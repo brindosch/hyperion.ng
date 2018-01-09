@@ -15,15 +15,6 @@
 #include <QThread>
 #include <QStringList>
 
-class acquireGIL
-{
-public:
-	inline acquireGIL() { state = PyGILState_Ensure(); };
-	inline ~acquireGIL() { PyGILState_Release(state); };
-private:
-	PyGILState_STATE state;
-};
-
 class Hyperion;
 class Plugins;
 class PriorityMuxer;
@@ -50,7 +41,8 @@ public:
 	bool hasRemoveFlag() const { return _remove; };
 
 private:
-	/// The Plugins instance
+	PyThreadState* _state;
+	/// The plugins instance
 	Plugins* _plugins;
 	/// Instance pointer of Hyperion
 	Hyperion* _hyperion;
@@ -150,7 +142,7 @@ public slots:
 
 	///
 	/// @brief called when the visible priorty has changed
-	/// @param comp   the prioriry
+	/// @param priority   the prioriry
 	///
 	void onVisiblePriorityChanged(const quint8& priority);
 };
