@@ -12,6 +12,30 @@
 // Get the plugin from the capsule
 #define getPlugin() static_cast<Plugin*>((Plugin*)PyCapsule_Import("plugin.__pluginObj", 0))
 
+PyEnumDef PluginModule::callbackEnums[]  = {
+	{ (char*) "ON_COMP_STATE_CHANGED",		CallbackAction::ON_COMP_STATE_CHANGED		},
+	{ (char*) "ON_SETTINGS_CHANGED",		CallbackAction::ON_SETTINGS_CHANGED		},
+	{ (char*) "ON_VISIBLE_PRIORITY_CHANGED",	CallbackAction::ON_VISIBLE_PRIORITY_CHANGED	},
+	{ nullptr, 0}
+};
+
+PyEnumDef PluginModule::componentsEnums[] = {
+	{ (char*) "COMP_ALL",				hyperion::Components::COMP_ALL			},
+	{ (char*) "COMP_SMOOTHING",			hyperion::Components::COMP_SMOOTHING		},
+	{ (char*) "COMP_BLACKBORDER",			hyperion::Components::COMP_BLACKBORDER		},
+	{ (char*) "COMP_FORWARDER",			hyperion::Components::COMP_FORWARDER		},
+	{ (char*) "COMP_UDPLISTENER",			hyperion::Components::COMP_UDPLISTENER		},
+	{ (char*) "COMP_BOBLIGHTSERVER",		hyperion::Components::COMP_BOBLIGHTSERVER	},
+	{ (char*) "COMP_GRABBER",			hyperion::Components::COMP_GRABBER		},
+	{ (char*) "COMP_V4L",				hyperion::Components::COMP_V4L			},
+	{ (char*) "COMP_COLOR",				hyperion::Components::COMP_COLOR		},
+	{ (char*) "COMP_IMAGE",				hyperion::Components::COMP_IMAGE		},
+	{ (char*) "COMP_EFFECT",			hyperion::Components::COMP_EFFECT		},
+	{ (char*) "COMP_PROTOSERVER",			hyperion::Components::COMP_PROTOSERVER		},
+	{ (char*) "COMP_LEDDEVICE",			hyperion::Components::COMP_LEDDEVICE		},
+	{ nullptr, 0}
+};
+
 struct PyModuleDef PluginModule::moduleDef = {
 	PyModuleDef_HEAD_INIT,		/* m_base */
 	"plugin",			/* m_name */
@@ -26,12 +50,12 @@ struct PyModuleDef PluginModule::moduleDef = {
 
 // Python method table
 PyMethodDef PluginModule::pluginMethods[] = {
-	{"log",					PluginModule::wrapLog,					METH_VARARGS,	"Write a message to the log"},
-	{"abort",				PluginModule::wrapAbort,				METH_NOARGS,	"Check if the plugin should abort execution."},
-	{"getSettings",			PluginModule::wrapGetSettings,			METH_NOARGS,	"Get the settings object"},
+	{"log",			PluginModule::wrapLog,			METH_VARARGS,	"Write a message to the log"},
+	{"abort",		PluginModule::wrapAbort,		METH_NOARGS,	"Check if the plugin should abort execution."},
+	{"getSettings",		PluginModule::wrapGetSettings,		METH_NOARGS,	"Get the settings object"},
 	{"setComponentState",	PluginModule::wrapSetComponentState,	METH_VARARGS,	"Set a component to a state, returns false if comp is not found."},
-	{"setColor",			PluginModule::wrapSetColor,				METH_VARARGS,	"Set a single color"},
-	{"setEffect",			PluginModule::wrapSetEffect,			METH_VARARGS,	"Set a effect by name. Timeout and priority are optional"},
+	{"setColor",		PluginModule::wrapSetColor,		METH_VARARGS,	"Set a single color"},
+	{"setEffect",		PluginModule::wrapSetEffect,		METH_VARARGS,	"Set a effect by name. Timeout and priority are optional"},
 
 	// callback methods
 	{"registerCallback",	PluginModule::registerCallback,		METH_VARARGS,	"Register a callback function."},
@@ -145,7 +169,7 @@ PyObject* PluginModule::wrapGetSettings(PyObject *, PyObject *)
 	if (getPlugin()->isInterruptionRequested())
 		Py_RETURN_NONE;
 	else
-		return Py_BuildValue("O",PluginModule::json2python(getPlugin()->getSettings()));
+		return Py_BuildValue("O", PluginModule::json2python(getPlugin()->getSettings()));
 }
 
 PyObject* PluginModule::wrapSetComponentState(PyObject *, PyObject *args)
@@ -224,10 +248,11 @@ PyObject *PluginModule::registerCallback(PyObject *, PyObject *args)
 	// check if we have aborted already
 	if (getPlugin()->isInterruptionRequested()) Py_RETURN_NONE;
 
-	PyObject *new_callback = nullptr;
+	PyObject* new_callback, *optional_eventList = nullptr;
 	int callback_type;
 
-	if(PyTuple_Size(args) == 2 && PyArg_ParseTuple(args, "iO:registerCallback", &callback_type, &new_callback))
+	// the |O! parses for an optional python object (optional_eventList) checked  to be of type PyList_Type
+	if(PyArg_ParseTuple(args, "iO|O!:registerCallback", &callback_type, &new_callback, &(PyList_Type), &optional_eventList))
 	{
 		if (!PyCallable_Check(new_callback))
 		{
@@ -235,15 +260,63 @@ PyObject *PluginModule::registerCallback(PyObject *, PyObject *args)
 			return nullptr;
 		}
 
-		Py_XINCREF(new_callback); // Add a reference to new callback
+		Py_XINCREF(new_callback); // add a reference to new callback
+
+		// if callbackObjects contains the callback adress given by new_callback, remove it first.
+		auto it = getPlugin()->callbackObjects.begin();
+		while (it != getPlugin()->callbackObjects.end())
+		{
+			if ((PyList_Check(it.value()) && new_callback == PyList_GetItem(it.value(), 0)) || (it.value() == new_callback))
+			{
+				getPlugin()->callbackObjects.erase(it);
+				break;
+			}
+			++it;
+		}
 
 		switch(callback_type)
 		{
-			case ON_SETTINGS_CHANGED:
-			case ON_COMP_STATE_CHANGED:
-			case ON_VISIBLE_PRIORITY_CHANGED:
-				getPlugin()->callbackObjects.insert(callbackTypeToString(callback_type), new_callback);
+			case CallbackAction::ON_SETTINGS_CHANGED:
+			case CallbackAction::ON_COMP_STATE_CHANGED:
+			case CallbackAction::ON_VISIBLE_PRIORITY_CHANGED:
+			{
+				// no specific events
+				if (!optional_eventList)
+				{
+					getPlugin()->callbackObjects.insertMulti(PluginModule::callbackEnums[callback_type].name, new_callback); // register the callback
+					break;
+				}
+				// may contain events
+				else
+				{
+					PyObject *iter = PyObject_GetIter(optional_eventList); // get an iterator over the eventlist
+					if (iter)
+					{
+						PyObject *pyListObject = PyList_New(1); // create PyListObject
+						PyList_SetItem(pyListObject, 0, new_callback); // steals reference to new_callback
+
+						while (true) // run through the eventlist
+						{
+							PyObject *event = PyIter_Next(iter);
+
+							if (!event)
+								break; // nothing left in the iterator
+
+							if (!PyLong_Check(event))
+								continue; // skip it, we were expecting an event enum
+
+							PyList_Append(pyListObject, event); // Add the event to the eventlist
+							Py_DECREF(event);
+						}
+
+						getPlugin()->callbackObjects.insertMulti(PluginModule::callbackEnums[callback_type].name, PyList_Size(pyListObject) > 1 ? pyListObject : new_callback); // register the callback
+					}
+					// It's not iterable.
+					else
+						getPlugin()->callbackObjects.insertMulti(PluginModule::callbackEnums[callback_type].name, new_callback); // register the callback
+				}
 				break;
+			}
 			default:
 				PyErr_SetString(PyExc_TypeError, "first parameter must be an callback enum");
 				return nullptr;
@@ -251,6 +324,7 @@ PyObject *PluginModule::registerCallback(PyObject *, PyObject *args)
 	}
 
 	Py_XDECREF(new_callback);
+	Py_XDECREF(optional_eventList);
 	Py_RETURN_NONE;
 }
 
@@ -259,21 +333,27 @@ PyObject *PluginModule::unRegisterCallback(PyObject *, PyObject *args)
 	// check if we have aborted already
 	if (getPlugin()->isInterruptionRequested()) Py_RETURN_NONE;
 
-	int callback_type;
-	if(PyArg_ParseTuple(args, "i:unregisterCallback", &callback_type))
-	{
-		switch(callback_type)
+	PyObject *registered_callback = nullptr;
+	if(PyArg_ParseTuple(args, "O:unregisterCallback", &registered_callback))
+{
+		if (!PyCallable_Check(registered_callback))
 		{
-			case ON_SETTINGS_CHANGED:
-			case ON_COMP_STATE_CHANGED:
-			case ON_VISIBLE_PRIORITY_CHANGED:
-				getPlugin()->callbackObjects.remove(callbackTypeToString(callback_type));
+			PyErr_SetString(PyExc_TypeError, "first parameter must be callable");
+			return nullptr;
+		}
+
+		auto it = getPlugin()->callbackObjects.begin();
+		while (it != getPlugin()->callbackObjects.end())
+		{
+			if ((PyList_Check(it.value()) && registered_callback == PyList_GetItem(it.value(), 0)) || ( it.value() == registered_callback))
+			{
+				getPlugin()->callbackObjects.erase(it);
 				break;
-			default:
-				PyErr_SetString(PyExc_TypeError, "callback enum required");
-				return nullptr;
+			}
+			++it;
 		}
 	}
 
+	Py_XDECREF(registered_callback);
 	Py_RETURN_NONE;
 }
