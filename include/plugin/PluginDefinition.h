@@ -19,6 +19,12 @@ struct PluginDefinition
 	QJsonObject     settings;
 };
 
+typedef struct PyEnumDef
+{
+	char* name;
+	int value;
+} PyEnumDef;
+
 enum PluginAction
 {
 	P_INSTALL,
@@ -38,32 +44,9 @@ enum PluginAction
 	P_UPDATED_AVAIL
 };
 
-// type definition for callback enums
- typedef enum
- {
+enum CallbackAction
+{
 	ON_COMP_STATE_CHANGED,
 	ON_SETTINGS_CHANGED,
-	ON_VISIBLE_PRIORITY_CHANGED,
-	CALLBACK_INVALID
- } callback_type_t;
-
-inline const char* callbackTypeToString(int callback)
-{
-	switch (callback)
-	{
-		case ON_COMP_STATE_CHANGED:				return "ON_COMP_STATE_CHANGED";
-		case ON_SETTINGS_CHANGED:				return "ON_SETTINGS_CHANGED";
-		case ON_VISIBLE_PRIORITY_CHANGED:		return "ON_VISIBLE_PRIORITY_CHANGED";
-		default:								return "";
-	}
-}
-
-inline callback_type_t stringToCallbackType(QString string)
-{
-	string = string.toUpper();
-	if (string == "ON_COMP_STATE_CHANGED")			return ON_COMP_STATE_CHANGED;
-	if (string == "ON_SETTINGS_CHANGED")			return ON_SETTINGS_CHANGED;
-	if (string == "ON_VISIBLE_PRIORITY_CHANGED")	return ON_VISIBLE_PRIORITY_CHANGED;
-
-	return CALLBACK_INVALID;
-}
+	ON_VISIBLE_PRIORITY_CHANGED
+};
