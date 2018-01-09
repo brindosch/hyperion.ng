@@ -4,6 +4,10 @@
 #include <Python.h>
 #define slots
 
+// hyperion incl
+#include <plugin/PluginDefinition.h>
+
+// qt incl
 #include <QJsonValue>
 
 class Plugin;
@@ -22,6 +26,10 @@ public:
 
 	// json 2 python
 	static PyObject* json2python		(const QJsonValue & jsonData);
+
+	// type definition for callback enums
+	static PyEnumDef callbackEnums[];
+	static PyEnumDef componentsEnums[];
 
 	// Wrapper methods for Python interpreter extra buildin methods
 	static PyMethodDef pluginMethods[];
