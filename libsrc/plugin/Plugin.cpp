@@ -34,18 +34,19 @@ void Plugin::run()
 {
 	// gil lock
 	PyEval_RestoreThread(mainThreadState);
-	// Initialize a new thread state
-	PyThreadState* state = Py_NewInterpreter();
+	// Initialize a new  sub-interpreter
+	_state = Py_NewInterpreter();
 	// verify we got a thread state
-	if (state == nullptr)
+	if (_state == nullptr)
 	{
+		// Release the GIL and reset the thread state to NULL, returning the previous thread state
 		PyEval_ReleaseLock();
 		Error(_log, "No thread state for id %s!",QSTRING_CSTR(_id));
 		_error = true;
 		return;
 	}
 	// swap interpreter thread
-	PyThreadState_Swap(state);
+	PyThreadState_Swap(_state);
 
 	// import the buildtin plugin module
 	PyObject * module = PyImport_ImportModule("plugin");
@@ -53,10 +54,13 @@ void Plugin::run()
 	// add a capsule containing 'this' to the dict to be able to retrieve the effect from the callback function
 	PyModule_AddObject(module, "__pluginObj", PyCapsule_New((void*)this, "plugin.__pluginObj", nullptr));
 
-	// for callback enums add an integer constant to module as name
-	PyModule_AddIntConstant(module, "ON_COMP_STATE_CHANGED", ON_COMP_STATE_CHANGED);
-	PyModule_AddIntConstant(module, "ON_SETTINGS_CHANGED", ON_SETTINGS_CHANGED);
-	PyModule_AddIntConstant(module, "ON_VISIBLE_PRIORITY_CHANGED", ON_VISIBLE_PRIORITY_CHANGED);
+	// for callback and components enums add an integer constant to module as name
+	// hint: the integer constants for the components enum is added with the number of elements in callback, to not conflict with the callback enums
+	for (PyEnumDef* callback = PluginModule::callbackEnums; callback->name != NULL; callback++)
+		PyModule_AddIntConstant(module, callback->name, callback->value);
+
+	for (PyEnumDef* components = PluginModule::componentsEnums; components->name != NULL; components++)
+		PyModule_AddIntConstant(module, components->name, components->value + 3);
 
 	// decref the module
 	Py_XDECREF(module);
@@ -100,9 +104,9 @@ void Plugin::run()
 	}
 
 	// make sure all sub threads have finished
-	for (PyThreadState* s = state->interp->tstate_head, *old = nullptr; s;)
+	for (PyThreadState* s = _state->interp->tstate_head, *old = nullptr; s;)
 	{
-		if (s == state)
+		if (s == _state)
 		{
 			s = s->next;
 			continue;
@@ -117,10 +121,10 @@ void Plugin::run()
 		msleep(100);
 		Py_END_ALLOW_THREADS;
 
-		s = state->interp->tstate_head;
+		s = _state->interp->tstate_head;
 	}
 
-	Py_EndInterpreter(state);
+	Py_EndInterpreter(_state);
 	PyEval_ReleaseLock();
 }
 
@@ -245,7 +249,7 @@ void Plugin::printException(void)
 		Py_XINCREF(errorTraceback);
 
 		PyErr_Restore(errorType, errorValue, errorTraceback);
-		// PyErr_PrintEx(0); // Remove this line to switch off stderr output
+		// PyErr_PrintEx(0); // Uncomment this line to switch on stderr output
 	}
 	Error(_log,"###### EXCEPTION END ######");
 }
@@ -356,9 +360,6 @@ void Plugin::handlePluginAction(PluginAction action, QString id, bool success, P
 			// Verify that ON_SETTINGS_CHANGED is a proper callable
 			if (it.value() && PyCallable_Check(it.value()))
 			{
-				// Acquire GIL
-				acquireGIL lock;
-
 				// Call the callback function and return the result of the call on success, or NULL on failure.
 				data = PyObject_CallObject(it.value(), NULL);
 			}
@@ -376,42 +377,74 @@ void Plugin::handlePluginAction(PluginAction action, QString id, bool success, P
 void Plugin::onCompStateChanged(const hyperion::Components comp, bool state)
 {
 	auto it = callbackObjects.find("ON_COMP_STATE_CHANGED");
-	if (it != callbackObjects.end())
+
+	// Loop over all registered ON_COMP_STATE_CHANGED callbacks and verify that the callback is a proper callable
+	while ( it != callbackObjects.end() && it.key() == "ON_COMP_STATE_CHANGED" && it.value() )
 	{
+		PyEval_RestoreThread(_state);
+		PyThreadState * threadState = PyThreadState_New(_state->interp); // create a thread state object for this thread
+		PyThreadState_Swap(threadState); // swap in the thread state
+
 		PyObject *data = nullptr;
 
-		// Verify that ON_COMP_STATE_CHANGED is a proper callable
-		if (it.value() && PyCallable_Check(it.value()))
+		if (PyList_Check(it.value())) // contains specific events
 		{
-			// Acquire GIL
-			acquireGIL lock;
+			if (PyCallable_Check(PyList_GetItem(it.value(), 0)))
+			{
+				for (Py_ssize_t i = 1; i < PyList_Size(it.value()); i++) // loop over specific events
+				{
+					if (PyLong_Check(PyList_GetItem(it.value(), i))) // borrowed references
+					{
+						// the compared enum comp is added with 100 because the registered integer value has been added to not conflict with the callback enums
+						if (PyLong_AsLong(PyList_GetItem(it.value(), i)) == (comp + 3))
+						{
+							// Call the callback function and return the result of the call on success, or NULL on failure.
+							data = PyObject_CallFunctionObjArgs(PyList_GetItem(it.value(), 0), PyUnicode_FromString(componentToIdString(comp)), PyBool_FromLong(state), NULL);
 
-			// Call the callback function and return the result of the call on success, or NULL on failure.
-			data = PyObject_CallFunctionObjArgs(it.value(), PyUnicode_FromString(componentToIdString(comp)), PyBool_FromLong(state), NULL);
+							if (!data && PyErr_Occurred()) // handle exception
+								printException();
+							else
+								Py_XDECREF(data); // release "data" when done
+						}
+					}
+				}
+			}
+		}
+		else // all events
+		{
+			if (PyCallable_Check(it.value()))
+			{
+				// call the callback function and return the result of the call on success, or NULL on failure.
+				data = PyObject_CallFunctionObjArgs(it.value(), PyUnicode_FromString(componentToIdString(comp)), PyBool_FromLong(state), NULL);
+
+				if (!data && PyErr_Occurred()) // handle exception
+					printException();
+				else
+					Py_XDECREF(data); // release "data" when done
+			}
 		}
 
-		// handle exception
-		if (!data && PyErr_Occurred())
-			printException();
-
-		// release "data" when done
-		Py_XDECREF(data);
+		PyThreadState_Swap(NULL); // swap the thread state out of the interpreter
+		PyThreadState_Delete(threadState); // delete the thread state object
+		PyEval_ReleaseLock(); // release the lock
+		++it;
 	}
 }
 
 void Plugin::onVisiblePriorityChanged(const quint8& priority)
 {
 	auto it = callbackObjects.find("ON_VISIBLE_PRIORITY_CHANGED");
-	if (it != callbackObjects.end())
+	if ( it != callbackObjects.end() && it.key() == "ON_VISIBLE_PRIORITY_CHANGED")
 	{
+		PyEval_RestoreThread(_state);
+		PyThreadState * threadState = PyThreadState_New(_state->interp); // create a thread state object for this thread
+		PyThreadState_Swap(threadState); // swap in the thread state
+
 		PyObject *data = nullptr;
 
 		// Verify that ON_VISIBLE_PRIORITY_CHANGED is a proper callable
 		if (it.value() && PyCallable_Check(it.value()))
 		{
-			// Acquire GIL
-			acquireGIL lock;
-
 			// Call the callback function and return the result of the call on success, or NULL on failure.
 			data = PyObject_CallFunctionObjArgs(it.value(), PyLong_FromUnsignedLong(priority), NULL);
 		}
@@ -422,5 +455,9 @@ void Plugin::onVisiblePriorityChanged(const quint8& priority)
 
 		// release "data" when done
 		Py_XDECREF(data);
+
+		PyThreadState_Swap(NULL); // swap the thread state out of the interpreter
+		PyThreadState_Delete(threadState); // delete the thread state object
+		PyEval_ReleaseLock(); // release the lock
 	}
 }
