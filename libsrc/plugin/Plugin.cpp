@@ -394,9 +394,53 @@ int Plugin::getVisiblePriority() const
 	return _hyperion->getCurrentPriority();
 }
 
-int Plugin::setVisiblePriority(const int& priority)
+bool Plugin::setVisiblePriority(const int& priority)
 {
 	return _hyperion->setCurrentSourcePriority(priority);
+}
+
+int Plugin::getBrightness(const QString& id) const
+{
+	ColorAdjustment *adjustment;
+	(id.isNull())
+		? adjustment = _hyperion->getAdjustment(_hyperion->getAdjustmentIds().at(0))
+		: adjustment = _hyperion->getAdjustment(id);
+
+	if (adjustment)
+		return adjustment->_rgbTransform.getBrightness();
+
+	return -1;
+}
+
+bool Plugin::setBrightness(const int& brightness, const QString& id) const
+{
+	if (id.isNull())
+	{
+		const QStringList idList = _hyperion->getAdjustmentIds();
+		for (QStringList::const_iterator it = idList.begin(); it != idList.end(); ++it)
+		{
+			ColorAdjustment *adjustment = _hyperion->getAdjustment(*it);
+			if (adjustment)
+				adjustment->_rgbTransform.setBrightness(brightness);
+		}
+		return true;
+	}
+	else
+	{
+		ColorAdjustment *adjustment = _hyperion->getAdjustment(id);
+		if (adjustment)
+		{
+			adjustment->_rgbTransform.setBrightness(brightness);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+QStringList Plugin::getAdjustmentIdList() const
+{
+	return _hyperion->getAdjustmentIds();
 }
 
 void Plugin::onPluginAction(PluginAction action, QString id, bool success, PluginDefinition def)
