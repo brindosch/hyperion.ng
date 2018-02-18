@@ -32,7 +32,7 @@ PyEnumDef PluginModule::loglvlEnums[]  = {
 PyEnumDef PluginModule::componentsEnums[] = {
 	{ (char*) "COMP_ALL",				hyperion::Components::COMP_ALL			},
 	{ (char*) "COMP_SMOOTHING",			hyperion::Components::COMP_SMOOTHING		},
-	{ (char*) "COMP_BLACKBORDER",		hyperion::Components::COMP_BLACKBORDER		},
+	{ (char*) "COMP_BLACKBORDER",			hyperion::Components::COMP_BLACKBORDER		},
 	{ (char*) "COMP_LEDDEVICE",			hyperion::Components::COMP_LEDDEVICE		},
 	{ (char*) "COMP_GRABBER",			hyperion::Components::COMP_GRABBER		},
 	{ (char*) "COMP_V4L",				hyperion::Components::COMP_V4L			},
@@ -67,10 +67,13 @@ PyMethodDef PluginModule::pluginMethods[] = {
 	{"setComponentState",	PluginModule::wrapSetComponentState,	METH_VARARGS,	"Set a component to a state, returns false if comp is not found."},
 	{"setColor",		PluginModule::wrapSetColor,		METH_VARARGS,	"Set a single color"},
 	{"setEffect",		PluginModule::wrapSetEffect,		METH_VARARGS,	"Set a effect by name. Timeout and priority are optional"},
-	{"getPriorityInfo",		PluginModule::wrapGetPriorityInfo,		METH_VARARGS,	"Get the priority info for given priority"},
-	{"getAllPriorities",		PluginModule::wrapGetAllPriorities,		METH_NOARGS,	"Get all registered priorities from Priority Muxer"},
-	{"getVisiblePriority",		PluginModule::wrapGetVisiblePriority,		METH_NOARGS,	"Get the current visible priority"},
-	{"setVisiblePriority",		PluginModule::wrapSetVisiblePriority,		METH_VARARGS,	"Select a specific priority"},
+	{"getPriorityInfo",	PluginModule::wrapGetPriorityInfo,	METH_VARARGS,	"Get the priority info for given priority"},
+	{"getAllPriorities",	PluginModule::wrapGetAllPriorities,	METH_NOARGS,	"Get all registered priorities from Priority Muxer"},
+	{"getVisiblePriority",	PluginModule::wrapGetVisiblePriority,	METH_NOARGS,	"Get the current visible priority"},
+	{"setVisiblePriority",	PluginModule::wrapSetVisiblePriority,	METH_VARARGS,	"Select a specific priority"},
+	{"setBrightness",	PluginModule::wrapSetBrightness,	METH_VARARGS,	"Set the led brightness by default value or specific identifier"},
+	{"getBrightness",	PluginModule::wrapGetBrightness,	METH_VARARGS,	"Get the led brightness by default value or specific identifier"},
+	{"getAdjustmentList",	PluginModule::wrapGetAdjustmentIdList,	METH_NOARGS,	"Returns a list with unique adjustment identifiers"},
 
 	// callback methods
 	{"registerCallback",	PluginModule::registerCallback,		METH_VARARGS,	"Register a callback function."},
@@ -150,7 +153,7 @@ PyObject* PluginModule::wrapLog(PyObject *, PyObject *args)
 	char *msg;
 	int lvl;
 
-	int argCount = PyTuple_Size(args);
+	Py_ssize_t argCount = PyTuple_Size(args);
 	if (argCount == 2)
 	{
 		// log with lvl
@@ -178,10 +181,8 @@ PyObject* PluginModule::wrapLog(PyObject *, PyObject *args)
 PyObject* PluginModule::wrapGetSettings(PyObject *, PyObject *)
 {
 	// check if we have aborted already
-	if (getPlugin()->isInterruptionRequested())
-		Py_RETURN_NONE;
-	else
-		return Py_BuildValue("O", PluginModule::json2python(getPlugin()->getSettings()));
+	if (getPlugin()->isInterruptionRequested()) Py_RETURN_NONE;
+	return Py_BuildValue("O", PluginModule::json2python(getPlugin()->getSettings()));
 }
 
 PyObject* PluginModule::wrapGetComponentState(PyObject *, PyObject *args)
@@ -224,7 +225,7 @@ PyObject* PluginModule::wrapSetColor(PyObject *, PyObject *args)
 	int duration = -1;
 	int priority = 50;
 
-	int argCount = PyTuple_Size(args);
+	Py_ssize_t argCount = PyTuple_Size(args);
 	if(argCount == 3 && PyArg_ParseTuple(args, "bbb", &color.red, &color.green, &color.blue))
 	{
 		getPlugin()->setColor(color, priority, duration);
@@ -253,7 +254,7 @@ PyObject* PluginModule::wrapSetEffect(PyObject *, PyObject *args)
 	int duration = -1;
 	int priority = 50;
 
-	int argCount = PyTuple_Size(args);
+	Py_ssize_t argCount = PyTuple_Size(args);
 	if(argCount == 1 && PyArg_ParseTuple(args, "s", &name))
 	{
 		return Py_BuildValue("i", getPlugin()->setEffect(name, priority, duration));
@@ -277,7 +278,7 @@ PyObject* PluginModule::wrapGetPriorityInfo(PyObject *, PyObject *args)
 
 	int priority;
 
-	int argCount = PyTuple_Size(args);
+	Py_ssize_t argCount = PyTuple_Size(args);
 	if(argCount == 1 && PyArg_ParseTuple(args, "i", &priority))
 	{
 		const PriorityMuxer::InputInfo info = getPlugin()->getPriorityInfo(priority);
@@ -295,18 +296,22 @@ PyObject* PluginModule::wrapGetPriorityInfo(PyObject *, PyObject *args)
 
 PyObject* PluginModule::wrapGetAllPriorities(PyObject *, PyObject *args)
 {
+	// check if we have aborted already
+	if (getPlugin()->isInterruptionRequested()) Py_RETURN_NONE;
+
 	const QList<int> prioList = getPlugin()->getAllPriorities();
 	PyObject* result = PyList_New(prioList.size());
 
 	for(int i = 0; i < prioList.size(); ++i)
-	{
 		PyList_SET_ITEM(result, i, Py_BuildValue("i", prioList.at(i)));
-	}
+
 	return result;
 }
 
 PyObject* PluginModule::wrapGetVisiblePriority(PyObject *, PyObject *args)
 {
+	// check if we have aborted already
+	if (getPlugin()->isInterruptionRequested()) Py_RETURN_NONE;
 	return Py_BuildValue("i", getPlugin()->getVisiblePriority());
 }
 
@@ -317,13 +322,64 @@ PyObject* PluginModule::wrapSetVisiblePriority(PyObject *, PyObject *args)
 
 	int priority;
 
-	int argCount = PyTuple_Size(args);
+	Py_ssize_t argCount = PyTuple_Size(args);
 	if(argCount == 1 && PyArg_ParseTuple(args, "i", &priority))
-	{
 		return Py_BuildValue("i", getPlugin()->setVisiblePriority(priority));
-	}
+
 	PyErr_SetString(PyExc_RuntimeError, "Invalid argument for setPriority()");
 	return nullptr;
+}
+
+PyObject* PluginModule::wrapGetBrightness(PyObject *, PyObject *args)
+{
+	// check if we have aborted already
+	if (getPlugin()->isInterruptionRequested()) Py_RETURN_NONE;
+
+	char *id = nullptr;
+	if(PyArg_ParseTuple(args, "|s:getBrightness", &id) && id)
+		return Py_BuildValue("i", getPlugin()->getBrightness(QString(id)));
+
+	return Py_BuildValue("i", getPlugin()->getBrightness());
+}
+
+PyObject* PluginModule::wrapSetBrightness(PyObject *, PyObject *args)
+{
+	// check if we have aborted already
+	if (getPlugin()->isInterruptionRequested()) Py_RETURN_NONE;
+
+	int brightness;
+	char *id = nullptr;
+
+	if(!(PyTuple_Size(args) < 1) && PyArg_ParseTuple(args, "i|s:setBrightness", &brightness, &id))
+	{
+		if (!(brightness < 0) && (brightness <= 100))
+		{
+			if (!id)
+				return Py_BuildValue("i", getPlugin()->setBrightness(brightness));
+			else
+				return Py_BuildValue("i", getPlugin()->setBrightness(brightness, QString(id)));
+		}
+		
+		PyErr_SetString(PyExc_RuntimeError, "Invalid brightness value.");
+		return nullptr;
+	}
+
+	PyErr_SetString(PyExc_RuntimeError, "Invalid argument for setBrightness()");
+	return nullptr;
+}
+
+PyObject* PluginModule::wrapGetAdjustmentIdList(PyObject *, PyObject *)
+{
+	// check if we have aborted already
+	if (getPlugin()->isInterruptionRequested()) Py_RETURN_NONE;
+
+	const QStringList idList = getPlugin()->getAdjustmentIdList();
+	PyObject* result = PyList_New(idList.size());
+
+	for (int i = 0; i < idList.size(); ++i)
+		PyList_SET_ITEM(result, i, Py_BuildValue("s", idList.at(i).toUtf8().constData()));
+
+	return result;
 }
 
 PyObject *PluginModule::registerCallback(PyObject *, PyObject *args)
