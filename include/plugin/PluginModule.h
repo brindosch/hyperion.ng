@@ -42,9 +42,12 @@ public:
 	static PyObject* wrapSetColor		(PyObject*, PyObject* args);
 	static PyObject* wrapSetEffect		(PyObject*, PyObject* args);
 	static PyObject* wrapGetPriorityInfo	(PyObject*, PyObject* args);
-	static PyObject* wrapGetAllPriorities	(PyObject*, PyObject* args);
-	static PyObject* wrapGetVisiblePriority	(PyObject*, PyObject* args);
+	static PyObject* wrapGetAllPriorities	(PyObject*, PyObject*);
+	static PyObject* wrapGetVisiblePriority	(PyObject*, PyObject*);
 	static PyObject* wrapSetVisiblePriority	(PyObject*, PyObject* args);
+	static PyObject* wrapGetBrightness	(PyObject*, PyObject* args);
+	static PyObject* wrapSetBrightness	(PyObject*, PyObject* args);
+	static PyObject* wrapGetAdjustmentIdList(PyObject*, PyObject*);
 
 	// Callback methods
 	static PyObject* registerCallback	(PyObject*, PyObject* args);
