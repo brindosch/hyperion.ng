@@ -173,7 +173,27 @@ public:
 	/// @param priority The priority to set
 	/// @return         True on success, false if not found
 	///
-	int setVisiblePriority(const int& priority);
+	bool setVisiblePriority(const int& priority);
+
+	///
+	/// @brief Returns the LED brightness value from the given identifier
+	/// @return The brightness value (or -1 if the identifier does not exist)
+	///
+	int getBrightness(const QString& id = QString::null) const;
+
+	///
+	/// @brief Set the brightness value to the given identifier or set all if id is not given
+	/// @param brightness The brightness value to set
+	/// @param id The identifier
+	/// @return True on success, false if the identifier does not exist
+	///
+	bool setBrightness(const int& brightness, const QString& id = QString::null) const;
+
+	///
+	/// @brief Returns a list with unique identifiers
+	/// @return The list with the identifiers
+	///
+	QStringList getAdjustmentIdList() const;
 
 public slots:
 	///
