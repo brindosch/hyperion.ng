@@ -30,9 +30,12 @@
 			"type": "array",
 			"required": true,
 			"items" :{
-				"type" : "integer"
+				"type" : "integer",
+				"minimum": 0,
+				"maximum": 255
 			},
-			"minItems": 3
+			"minItems": 3,
+			"maxItems": 3
 		}
 	},
 	"additionalProperties": false

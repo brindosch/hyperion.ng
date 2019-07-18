@@ -10,23 +10,24 @@
 ///
 /// @brief Singelton API event sharing across Hyperion instances
 ///
-class Events : public QObject
+class EventSharing : public QObject
 {
+	Q_OBJECT
 public:
-    static Events* getInstance()
+    static EventSharing* getInstance()
     {
-        static Events    instance;
+        static EventSharing    instance;
         return & instance;
     }
 private:
-    Events()
+    EventSharing()
 	{
 		//qRegisterMetaType<>()
 	}
 
 public:
-    Events(Events const&)          = delete;
-    void operator=(Events const&)  = delete;
+    EventSharing(EventSharing const&)          = delete;
+    void operator=(EventSharing const&)  = delete;
 
 signals:
 	///
@@ -47,7 +48,7 @@ signals:
 	/// @param timeout_ms    The timeout_ms
 	/// @param origin        The origin
 	///
-	void requestSetColor(QObject* hyperion, int priority, const ColorRgb &color, const int timeout_ms, const QString& origin);
+	void requestSetColor(QObject* hyperion, const int priority, const ColorRgb &color, const int timeout_ms, const QString& origin);
 
 	///
 	/// @brief Set a color

@@ -152,6 +152,9 @@ private:
 	/// Plugins instance
 	Plugins* _plugins;
 
+	// plugin cmd feedback
+	bool _pluginCmdFeedback;
+
 	///
 	/// @brief Handle the switches of Hyperion instances
 	/// @param instance the instance to switch

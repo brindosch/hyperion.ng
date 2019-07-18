@@ -22,12 +22,11 @@ WebSocketClient::WebSocketClient(QtHttpRequest* request, QTcpSocket* sock, const
 	// QtHttpRequest contains all headers for handshake
 	QByteArray secWebSocketKey = request->getHeader(QtHttpHeader::SecWebSocketKey);
 	const QString client = request->getClientInfo().clientAddress.toString();
+	Debug(_log, "New connection from %s", QSTRING_CSTR(client));
 
 	// Json processor
 	_jsonAPI = new JsonAPI(client, _log, localConnection, this);
 	connect(_jsonAPI, &JsonAPI::callbackMessage, this, &WebSocketClient::sendMessage);
-
-	Debug(_log, "New connection from %s", QSTRING_CSTR(client));
 
 	// do handshake
 	secWebSocketKey += "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -113,7 +112,17 @@ void WebSocketClient::handleWebSocketFrame(void)
 				_onContinuation = false;
 				if (_wsh.opCode == OPCODE::TEXT)
 				{
-					_jsonAPI->handleMessage(QString(_wsReceiveBuffer));
+					// extract command based on newline
+					int bytes = _wsReceiveBuffer.indexOf('\n') + 1;
+					while(bytes > 0)
+					{
+						_jsonAPI->handleMessage(QByteArray(_wsReceiveBuffer.data(), bytes));
+						// remove message data from buffer
+						_wsReceiveBuffer = _wsReceiveBuffer.mid(bytes);
+
+						// try to look up '\n' again
+						bytes = _wsReceiveBuffer.indexOf('\n') + 1;
+					}
 				}
 				else
 				{

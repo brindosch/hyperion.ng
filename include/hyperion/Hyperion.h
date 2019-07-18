@@ -464,7 +464,6 @@ signals:
 	///
 	void rawLedColors(const std::vector<ColorRgb>& ledValues);
 
-
 	///
 	/// @brief Emits before thread quit is requested
 	///
@@ -475,11 +474,14 @@ signals:
 	///
 	void started();
 
-private slots:
+public slots:
 	///
 	/// @briefUpdates the priority muxer with the current time and (re)writes the led color with applied transforms.
 	///
 	void update();
+
+private slots:
+
 
 	///
 	///	@brief Apply ComponentRegister emits for COMP_ALL. Enables/Disables core timers
@@ -520,9 +522,6 @@ private:
 
 	/// The specifiation of the led frame construction and picture integration
 	LedString _ledString;
-
-	/// specifiation of cloned leds
-	LedString _ledStringClone;
 
 	/// Image Processor
 	ImageProcessor* _imageProcessor;

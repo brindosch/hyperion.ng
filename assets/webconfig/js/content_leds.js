@@ -24,12 +24,12 @@ function createLedPreview(leds, origin){
 		$('#previewcreator').html($.i18n('conf_leds_layout_preview_originMA'));
 		$('#leds_preview').css("padding-top", "100%");
 	}
-	
+
 	$('#previewledcount').html($.i18n('conf_leds_layout_preview_totalleds', leds.length));
 	$('#previewledpower').html($.i18n('conf_leds_layout_preview_ledpower', ((leds.length * 0.06)*1.1).toFixed(1)));
-	
+
 	$('.st_helper').css("border", "8px solid grey");
-	
+
 	canvas_height = $('#leds_preview').innerHeight();
 	canvas_width = $('#leds_preview').innerWidth();
 
@@ -39,17 +39,17 @@ function createLedPreview(leds, origin){
 		led = leds[idx];
 		led_id='ledc_'+[idx];
 		bgcolor = "background-color:hsl("+(idx*360/leds.length)+",100%,50%);";
-		pos = "left:"+(led.hscan.minimum * canvas_width)+"px;"+
-			"top:"+(led.vscan.minimum * canvas_height)+"px;"+
-			"width:"+((led.hscan.maximum-led.hscan.minimum) * canvas_width-1)+"px;"+
-			"height:"+((led.vscan.maximum-led.vscan.minimum) * canvas_height-1)+"px;";
-		leds_html += '<div id="'+led_id+'" class="led" style="'+bgcolor+pos+'" title="'+led.index+'"><span id="'+led_id+'_num" class="led_prev_num">'+led.index+'</span></div>';
+		pos = "left:"+(led.hscan.min * canvas_width)+"px;"+
+			"top:"+(led.vscan.min * canvas_height)+"px;"+
+			"width:"+((led.hscan.max-led.hscan.min) * canvas_width-1)+"px;"+
+			"height:"+((led.vscan.max-led.vscan.min) * canvas_height-1)+"px;";
+		leds_html += '<div id="'+led_id+'" class="led" style="'+bgcolor+pos+'" title="'+idx+'"><span id="'+led_id+'_num" class="led_prev_num">'+idx+'</span></div>';
 	}
 	$('#leds_preview').html(leds_html);
 	$('#ledc_0').css({"background-color":"black","z-index":"12"});
 	$('#ledc_1').css({"background-color":"grey","z-index":"11"});
 	$('#ledc_2').css({"background-color":"#A9A9A9","z-index":"10"});
-	
+
 	if($('#leds_prev_toggle_num').hasClass('btn-success'))
 		$('.led_prev_num').css("display", "inline");
 
@@ -65,14 +65,14 @@ function createClassicLeds(){
 	var ledsgpos = parseInt($("#ip_cl_gpos").val());
 	var position = parseInt($("#ip_cl_position").val());
 	var reverse = $("#ip_cl_reverse").is(":checked");
-	
+
 	//advanced values
 	var ledsVDepth = parseInt($("#ip_cl_vdepth").val())/100;
 	var ledsHDepth = parseInt($("#ip_cl_hdepth").val())/100;
 	var edgeVGap = parseInt($("#ip_cl_edgegap").val())/100/2;
 	//var cornerVGap = parseInt($("#ip_cl_cornergap").val())/100/2;
 	var overlap = $("#ip_cl_overlap").val()/4000;
-	
+
 	//helper
 	var edgeHGap = edgeVGap/(16/9);
 	//var cornerHGap = cornerVGap/(16/9);
@@ -83,15 +83,15 @@ function createClassicLeds(){
 	var Hdiff = Hmax-Hmin;
 	var Vdiff = Vmax-Vmin;
 	var ledArray = [];
-	
+
 	function createFinalArray(array){
 		finalLedArray = [];
 		for(var i = 0; i<array.length; i++){
-			hmin = array[i].hscan.minimum;
-			hmax = array[i].hscan.maximum;
-			vmin = array[i].vscan.minimum;
-			vmax = array[i].vscan.maximum;
-			finalLedArray[i] = { "index" : i, "hscan": { "maximum" : hmax, "minimum" : hmin }, "vscan": { "maximum": vmax, "minimum": vmin}}
+			hmin = array[i].hscan.min;
+			hmax = array[i].hscan.max;
+			vmin = array[i].vscan.min;
+			vmax = array[i].vscan.max;
+			finalLedArray[i] = { "hscan": { "max" : hmax, "min" : hmin }, "vscan": { "max": vmax, "min": vmin}}
 		}
 		createLedPreview(finalLedArray, 'classic');
 	}
@@ -111,7 +111,7 @@ function createClassicLeds(){
 			return array;
 		}
 	}
-	
+
 	function valScan(val)
 	{
 		if(val > 1)
@@ -120,7 +120,7 @@ function createClassicLeds(){
 			return val = 0;
 		return val;
 	}
-	
+
 	function ovl(scan,val)
 	{
 		if(scan == "+")
@@ -128,15 +128,15 @@ function createClassicLeds(){
 		else
 			return valScan(val -= overlap);
 	}
-	
+
 	function createLedArray(hmin, hmax, vmin, vmax){
 		hmin = round(hmin);
 		hmax = round(hmax);
 		vmin = round(vmin);
 		vmax = round(vmax);
-		ledArray.push( { "hscan" : { "minimum" : hmin, "maximum" : hmax }, "vscan": { "minimum": vmin, "maximum": vmax }} );
+		ledArray.push( { "hscan" : { "min" : hmin, "max" : hmax }, "vscan": { "min": vmin, "max": vmax }} );
 	}
-	
+
 	function createTopLeds(){
 		step=(Hmax-Hmin)/ledstop;
 		//if(cornerVGap != '0')
@@ -148,9 +148,9 @@ function createClassicLeds(){
 			hmin = ovl("-",(Hdiff/ledstop*[i])+edgeHGap);
 			hmax = ovl("+",(Hdiff/ledstop*[i])+step+edgeHGap);
 			createLedArray(hmin, hmax, vmin, vmax);
-		}	
+		}
 	}
-	
+
 	function createLeftLeds(){
 		step=(Vmax-Vmin)/ledsleft;
 		//if(cornerVGap != '0')
@@ -164,7 +164,7 @@ function createClassicLeds(){
 			createLedArray(hmin, hmax, vmin, vmax);
 		}
 	}
-	
+
 	function createRightLeds(){
 		step=(Vmax-Vmin)/ledsright;
 		//if(cornerVGap != '0')
@@ -175,15 +175,15 @@ function createClassicLeds(){
 		for (var i = 0; i<ledsright; i++){
 			vmin = ovl("-",(Vdiff/ledsright*[i])+edgeVGap);
 			vmax = ovl("+",(Vdiff/ledsright*[i])+step+edgeVGap);
-			createLedArray(hmin, hmax, vmin, vmax);			
+			createLedArray(hmin, hmax, vmin, vmax);
 		}
 	}
-	
+
 	function createBottomLeds(){
 		step=(Hmax-Hmin)/ledsbottom;
 		//if(cornerVGap != '0')
 		//	step=(Hmax-Hmin-(cornerHGap*2))/ledsbottom;
-		
+
 		vmax=Vmax;
 		vmin=vmax-ledsHDepth;
 		for (var i = ledsbottom-1; i>-1; i--){
@@ -192,7 +192,7 @@ function createClassicLeds(){
 			createLedArray(hmin, hmax, vmin, vmax);
 		}
 	}
-	
+
 	createLeftLeds(createBottomLeds(createRightLeds(createTopLeds())));
 
 	//check led gap pos
@@ -202,25 +202,25 @@ function createClassicLeds(){
 		$('#ip_cl_ledsgpos').val(mpos);
 		ledsgpos = mpos;
 	}
-	
+
 	//check led gap length
 	if(ledsglength >= ledArray.length)
 	{
 		$('#ip_cl_ledsglength').val(ledArray.length-1);
 		ledsglength = ledArray.length-ledsglength-1;
 	}
-	
+
 	if(ledsglength != 0){
 		ledArray.splice(ledsgpos, ledsglength);
 	}
-	
+
 	if (position != 0){
 		rotateArray(ledArray, position);
 	}
 
 	if (reverse)
 		ledArray.reverse();
-	
+
 	createFinalArray(ledArray);
 }
 
@@ -261,16 +261,15 @@ function createMatrixLeds(){
 		hscanMax = round(hscanMax);
 		vscanMin = round(vscanMin);
 		vscanMax = round(vscanMax);
-		
+
 		leds.push({
-			index: index,
 			hscan: {
-				minimum: hscanMin,
-				maximum: hscanMax
+				min: hscanMin,
+				max: hscanMax
 			},
 			vscan: {
-				minimum: vscanMin,
-				maximum: vscanMax
+				min: vscanMin,
+				max: vscanMax
 			}
 		})
 	}
@@ -306,7 +305,7 @@ function createMatrixLeds(){
 $(document).ready(function() {
 	// translate
 	performTranslation();
-	
+
 	//add intros
 	if(showOptHelp)
 	{
@@ -314,9 +313,9 @@ $(document).ready(function() {
 		createHintH("intro", $.i18n('conf_leds_layout_intro'), "layout_intro");
 		$('#led_vis_help').html('<div><div class="led_ex" style="background-color:black;margin-right:5px;margin-top:3px"></div><div style="display:inline-block;vertical-align:top">'+$.i18n('conf_leds_layout_preview_l1')+'</div></div><div class="led_ex" style="background-color:grey;margin-top:3px;margin-right:2px"></div><div class="led_ex" style="background-color: rgb(169, 169, 169);margin-right:5px;margin-top:3px;"></div><div style="display:inline-block;vertical-align:top">'+$.i18n('conf_leds_layout_preview_l2')+'</div>');
 	}
-	
+
 	var slConfig = serverConfig.ledConfig;
-	
+
 	//restore ledConfig
 	for(key in slConfig)
 	{
@@ -340,7 +339,7 @@ $(document).ready(function() {
 		}
 		setTimeout(requestWriteConfig, 100, {ledConfig});
 	}
-	
+
 	// check access level and adjust ui
 	if(storedAccess == "default")
 	{
@@ -354,10 +353,10 @@ $(document).ready(function() {
 		$('#btn_ma_save').toggle(false);
 		$('#btn_cl_save').toggle(false);
 	}
-	
+
 	//Wiki link
 	$('#leds_wl').append('<p style="font-weight:bold">'+$.i18n('general_wiki_moreto',$.i18n('conf_leds_nav_label_ledlayout'))+buildWL("user/moretopics/ledarea","Wiki")+'</p>');
-	
+
 	// bind change event to all inputs
 	$('.ledCLconstr').bind("change", function() {
 		valValue(this.id,this.value,this.min,this.max);
@@ -370,7 +369,7 @@ $(document).ready(function() {
 	});
 
 	// v4 of json schema with diff required assignment - remove when hyperion schema moved to v4
-	var ledschema = {"items":{"additionalProperties":false,"required":["hscan","vscan","index"],"properties":{"clone":{"type":"integer"},"colorOrder":{"enum":["rgb","bgr","rbg","brg","gbr","grb"],"type":"string"},"hscan":{"additionalProperties":false,"properties":{"maximum":{"maximum":1,"minimum":0,"type":"number"},"minimum":{"maximum":1,"minimum":0,"type":"number"}},"type":"object"},"index":{"type":"integer"},"vscan":{"additionalProperties":false,"properties":{"maximum":{"maximum":1,"minimum":0,"type":"number"},"minimum":{"maximum":1,"minimum":0,"type":"number"}},"type":"object"}},"type":"object"},"type":"array"}
+	var ledschema = {"items":{"additionalProperties":false,"required":["hscan","vscan"],"properties":{"colorOrder":{"enum":["rgb","bgr","rbg","brg","gbr","grb"],"type":"string"},"hscan":{"additionalProperties":false,"properties":{"max":{"maximum":1,"minimum":0,"type":"number"},"min":{"maximum":1,"minimum":0,"type":"number"}},"type":"object"},"vscan":{"additionalProperties":false,"properties":{"max":{"maximum":1,"minimum":0,"type":"number"},"min":{"maximum":1,"minimum":0,"type":"number"}},"type":"object"}},"type":"object"},"type":"array"}
 	//create jsonace editor
 	var aceEdt = new JSONACEEditor(document.getElementById("aceedit"),{
 		mode: 'code',
@@ -384,7 +383,7 @@ $(document).ready(function() {
 			{
 				success = false;
 			}
-			
+
 			if(success)
 			{
 				$('#leds_custom_updsim').attr("disabled", false);
@@ -397,7 +396,7 @@ $(document).ready(function() {
 			}
 		}
 	}, serverConfig.leds);
-	
+
 	//TODO: HACK! No callback for schema validation - Add it!
 	setInterval(function(){
 		if($('#aceedit table').hasClass('jsoneditor-text-errors'))
@@ -406,23 +405,23 @@ $(document).ready(function() {
 			$('#leds_custom_save').attr("disabled", true);
 		}
 	},1000)
-	
+
 	$('.jsoneditor-menu').toggle();
-	
+
 	// leds to finalLedArray
 	finalLedArray = serverConfig.leds;
-	
+
 	// cl/ma leds push to textfield
 	$('#btn_cl_generate, #btn_ma_generate').off().on("click", function(e) {
 		if(e.currentTarget.id == "btn_cl_generate")
 			$('#collapse1').collapse('hide');
 		else
 			$('#collapse2').collapse('hide');
-		
+
 		aceEdt.set(finalLedArray);
 		$('#collapse4').collapse('show');
 	});
-	
+
 	// create and update editor
 	$("#leddevices").off().on("change", function() {
 		generalOptions  = serverSchema.properties.device;
@@ -431,7 +430,7 @@ $(document).ready(function() {
 			generalOptions : generalOptions,
 			specificOptions : specificOptions,
 		});
-		
+
 		values_general = {};
 		values_specific = {};
 		isCurrentDevice = (serverInfo.ledDevices.active == $(this).val());
@@ -451,10 +450,10 @@ $(document).ready(function() {
 
 			conf_editor.getEditor("root.specificOptions").setValue( values_specific );
 		};
-		
+
 		// change save button state based on validation result
 		conf_editor.validate().length ? $('#btn_submit_controller').attr('disabled', true) : $('#btn_submit_controller').attr('disabled', false);
-		
+
 		// led controller sepecific wizards
 		if($(this).val() == "philipshue")
 		{
@@ -467,7 +466,7 @@ $(document).ready(function() {
 			$('#btn_led_device_wiz').off();
 		}
 	});
-	
+
 	// create led device selection
 	ledDevices = serverInfo.ledDevices.available
 	devRPiSPI = ['apa102', 'ws2801', 'lpd6803', 'lpd8806', 'p9813', 'sk6812spi', 'sk6822spi', 'ws2812spi'];
@@ -475,14 +474,14 @@ $(document).ready(function() {
 	devRPiGPIO = ['piblaster'];
 	devNET = ['atmoorb', 'fadecandy', 'philipshue', 'tinkerforge', 'tpm2net', 'udpe131', 'udpartnet', 'udph801', 'udpraw'];
 	devUSB = ['adalight', 'dmx', 'atmo', 'hyperionusbasp', 'lightpack', 'multilightpack', 'paintpack', 'rawhid', 'sedu', 'tpm2'];
-	
+
 	var optArr = [[]];
 	optArr[1]=[];
 	optArr[2]=[];
 	optArr[3]=[];
 	optArr[4]=[];
 	optArr[5]=[];
-	
+
 	for (idx=0; idx<ledDevices.length; idx++)
 	{
 		if($.inArray(ledDevices[idx], devRPiSPI) != -1)
@@ -498,7 +497,7 @@ $(document).ready(function() {
 		else
 			optArr[5].push(ledDevices[idx]);
 	}
-	
+
 	$("#leddevices").append(createSel(optArr[0], $.i18n('conf_leds_optgroup_RPiSPI')));
 	$("#leddevices").append(createSel(optArr[1], $.i18n('conf_leds_optgroup_RPiPWM')));
 	$("#leddevices").append(createSel(optArr[2], $.i18n('conf_leds_optgroup_RPiGPIO')));
@@ -512,13 +511,13 @@ $(document).ready(function() {
 	$("#leds_custom_updsim").off().on("click", function() {
 		createLedPreview(aceEdt.get(), 'text');
 	});
-	
+
 	// save led config and saveValues - passing textfield
 	$("#btn_ma_save, #btn_cl_save").off().on("click", function() {
 		requestWriteConfig({"leds" :finalLedArray});
 		saveValues();
 	});
-	
+
 	// save led config from textfield
 	$("#leds_custom_save").off().on("click", function() {
 		requestWriteConfig(JSON.parse('{"leds" :'+aceEdt.getText()+'}'));
@@ -530,13 +529,13 @@ $(document).ready(function() {
 		$('.led_prev_num').toggle();
 		toggleClass('#leds_prev_toggle_num', "btn-danger", "btn-success");
 	});
-	
+
 	// open checklist
 	$('#leds_prev_checklist').off().on("click", function() {
 		var liList = [$.i18n('conf_leds_layout_checkp1'),$.i18n('conf_leds_layout_checkp3'),$.i18n('conf_leds_layout_checkp2'),$.i18n('conf_leds_layout_checkp4')];
 		var ul = document.createElement("ul");
 		ul.className = "checklist"
-		
+
 		for(var i = 0; i<liList.length; i++)
 		{
 			var li = document.createElement("li");
@@ -545,7 +544,7 @@ $(document).ready(function() {
 		}
 		showInfoDialog('checklist', "", ul);
 	});
-	
+
 	// nav
 	$('#leds_cfg_nav a[data-toggle="tab"]').off().on('shown.bs.tab', function (e) {
 		var target = $(e.target).attr("href") // activated tab
@@ -555,13 +554,13 @@ $(document).ready(function() {
 			ledsCustomCfgInitialized = true;
 		}
 	});
-	
+
 	// save led device config
 	$("#btn_submit_controller").off().on("click", function(event) {
 
 		ledDevice = $("#leddevices").val();
 		result = {device:{}};
-		
+
 		general = conf_editor.getEditor("root.generalOptions").getValue();
 		specific = conf_editor.getEditor("root.specificOptions").getValue();
 		for(var key in general){
@@ -577,6 +576,3 @@ $(document).ready(function() {
 
 	removeOverlay();
 });
-
-
-

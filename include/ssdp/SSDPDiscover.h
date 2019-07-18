@@ -33,11 +33,11 @@ public:
 	/// @param timeout_ms  The timeout in ms
 	/// @return The address+port of webserver or empty if timed out
 	///
-	const QString getFirstService(const searchType& type = STY_WEBSERVER,const QString& st = "urn:hyperion-project.org:device:basic:1", const int& timeout_ms = 3000);
+	const QString getFirstService(const searchType& type = STY_WEBSERVER, const QString& st = "urn:hyperion-project.org:device:basic:1", const int& timeout_ms = 3000);
 
 signals:
 	///
-	/// @brief Emits whenever a new service has ben found, search started with searchForService()
+	/// @brief Emits whenever a new service has been found, search started with searchForService()
 	/// @param webServer The address+port of webserver "192.168.0.10:8090"
 	///
 	void newService(const QString webServer);

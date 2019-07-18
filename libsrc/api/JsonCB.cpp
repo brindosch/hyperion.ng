@@ -30,7 +30,7 @@ JsonCB::JsonCB(Hyperion* hyperion, QObject* parent)
 	, _prioMuxer(_hyperion->getMuxerInstance())
 {
 	_availableCommands << "components-update" << "plugins-update" << "sessions-update" << "priorities-update" << "imageToLedMapping-update"
-	<< "adjustment-update" << "videomode-update" << "effects-update" << "settings-update" << "instance-update";
+	<< "adjustment-update" << "videomode-update" << "effects-update" << "settings-update" << "leds-update" << "instance-update";
 }
 
 bool JsonCB::subscribeFor(const QString& type)
@@ -93,6 +93,13 @@ bool JsonCB::subscribeFor(const QString& type)
 		connect(_hyperion, &Hyperion::settingsChanged, this, &JsonCB::handleSettingsChange, Qt::UniqueConnection);
 	}
 
+	if(type == "leds-update")
+	{
+		_subscribedCommands << type;
+		connect(_hyperion, &Hyperion::settingsChanged, this, &JsonCB::handleLedsConfigChange, Qt::UniqueConnection);
+	}
+
+
 	if(type == "instance-update")
 	{
 		_subscribedCommands << type;
@@ -141,6 +148,7 @@ void JsonCB::handlePluginAction(PluginAction action, QString id, bool success, P
 				plug["name"] = def.name;
 				plug["description"] = def.description;
 				plug["version"] = def.version;
+				plug["running"] = _plugins->isPluginRunning(id);
 				data[id] = plug;
 				send = true;
 			}
@@ -149,10 +157,23 @@ void JsonCB::handlePluginAction(PluginAction action, QString id, bool success, P
 			if(success)
 			{
 				plug["removed"] = true;
-				data["removed"] = true;
-				data[id] = plug; // TODO a way to init a empty data {}, currently it's 'null'
+				data[id] = plug;
 				send = true;
 			}
+			break;
+		case P_STARTED:
+			if(success)
+			{
+				plug["running"] = true;
+				data[id] = plug;
+				send = true;
+			}
+			break;
+		case P_STOPPED:
+		case P_ERROR:
+				plug["running"] = false;
+				data[id] = plug;
+				send = true;
 			break;
 		default:
 			break;
@@ -355,6 +376,16 @@ void JsonCB::handleSettingsChange(const settings::type& type, const QJsonDocumen
 		dat[typeToString(type)] = data.array();
 
 	doCallback("settings-update", QVariant(dat));
+}
+
+void JsonCB::handleLedsConfigChange(const settings::type& type, const QJsonDocument& data)
+{
+	if(type == settings::LEDS)
+	{
+		QJsonObject dat;
+		dat[typeToString(type)] = data.array();
+		doCallback("leds-update", QVariant(dat));
+	}
 }
 
 void JsonCB::handleInstanceChange()

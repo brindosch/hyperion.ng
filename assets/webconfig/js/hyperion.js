@@ -162,7 +162,7 @@ function sendToHyperion(command, subcommand, msg)
 	else
 		msg = "";
 
-	websocket.send(encode_utf8('{"command":"'+command+'", "tan":'+wsTan+subcommand+msg+'}'));
+	websocket.send(encode_utf8('{"command":"'+command+'", "tan":'+wsTan+subcommand+msg+'}\n'));
 }
 
 // -----------------------------------------------------------

@@ -36,7 +36,7 @@ bool LedDeviceWS281x::init(const QJsonObject &deviceConfig)
 	}
 
 	_led_string.freq   = deviceConfig["freq"].toInt(800000ul);
-	_led_string.dmanum = deviceConfig["dma"].toInt(5);
+	_led_string.dmanum = deviceConfig["dma"].toInt(10);
 	_led_string.channel[_channel].gpionum    = deviceConfig["gpio"].toInt(18);
 	_led_string.channel[_channel].count      = deviceConfig["leds"].toInt(256);
 	_led_string.channel[_channel].invert     = deviceConfig["invert"].toInt(0);
@@ -54,7 +54,7 @@ bool LedDeviceWS281x::init(const QJsonObject &deviceConfig)
 	{
 		throw std::runtime_error("Unable to initialize ws281x library.");
 	}
-	
+
 	return true;
 }
 
@@ -84,7 +84,7 @@ int LedDeviceWS281x::write(const std::vector<ColorRgb> &ledValues)
 			Rgb_to_Rgbw(color, &_temp_rgbw, _whiteAlgorithm);
 		}
 
-		_led_string.channel[_channel].leds[idx++] = 
+		_led_string.channel[_channel].leds[idx++] =
 			((uint32_t)_temp_rgbw.white << 24) + ((uint32_t)_temp_rgbw.red << 16) + ((uint32_t)_temp_rgbw.green << 8) + _temp_rgbw.blue;
 
 	}
@@ -92,6 +92,6 @@ int LedDeviceWS281x::write(const std::vector<ColorRgb> &ledValues)
 	{
 		_led_string.channel[_channel].leds[idx++] = 0;
 	}
-	
+
 	return ws2811_render(&_led_string) ? -1 : 0;
 }

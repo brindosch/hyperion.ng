@@ -241,8 +241,8 @@ void Plugins::start(QString id)
 
 	connect( thread, &QThread::finished, callbackThread, &QObject::deleteLater );
 	connect( thread, &QThread::finished, thread, &QObject::deleteLater );
-	// make sure the callback thread + callback instance quits with the plugin thread + plugin instance
-	connect( newPlugin, &Plugin::finished, thread, &QThread::quit, Qt::DirectConnection);
+	// kill callback thread when plugin thread finishes
+	connect( newPlugin, &Plugin::finished, thread, &QThread::quit);
 
 	// feed callback with signals
 	connect(this, &Plugins::pluginAction, callbackThread, &CallbackThread::handlePluginAction);

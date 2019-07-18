@@ -76,6 +76,8 @@ void CaptureCont::setSystemCaptureEnable(const bool& enable)
 		{
 			disconnect(GlobalSignals::getInstance(), &GlobalSignals::setSystemImage, 0, 0);
 			_hyperion->clear(_systemCaptPrio);
+			_systemInactiveTimer->stop();
+			_systemCaptName = "";
 		}
 		_systemCaptEnabled = enable;
 		_hyperion->getComponentRegister().componentStateChanged(hyperion::COMP_GRABBER, enable);
@@ -96,6 +98,7 @@ void CaptureCont::setV4LCaptureEnable(const bool& enable)
 			disconnect(GlobalSignals::getInstance(), &GlobalSignals::setV4lImage, 0, 0);
 			_hyperion->clear(_v4lCaptPrio);
 			_v4lInactiveTimer->stop();
+			_v4lCaptName = "";
 		}
 		_v4lCaptEnabled = enable;
 		_hyperion->getComponentRegister().componentStateChanged(hyperion::COMP_V4L, enable);
@@ -138,9 +141,11 @@ void CaptureCont::componentStateChanged(const hyperion::Components component, bo
 void CaptureCont::setV4lInactive()
 {
 	_hyperion->setInputInactive(_v4lCaptPrio);
+	_v4lCaptName = "";
 }
 
 void CaptureCont::setSystemInactive()
 {
 	_hyperion->setInputInactive(_systemCaptPrio);
+	_systemCaptName = "";
 }
