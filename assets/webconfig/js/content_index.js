@@ -84,28 +84,40 @@ $(document).ready( function() {
 		$("#top-navbar").removeAttr('style')
 		if(window.defaultPasswordIsSet === true)
 			$('#hyperion_default_password_notify').fadeIn().delay(10000).fadeOut();
+					
+		if (event.response.hasOwnProperty('info'))
+			setStorage("loginToken", event.response.info.token, true);
 
 		requestServerConfigSchema();
 	});
 
 	$(window.hyperion).on("cmd-authorize-newPassword", function(event) {
-        if (event.response.success === true) {
+        if (event.response.success === true) 
 			showInfoDialog("success",$.i18n('InfoDialog_changePassword_success'));
-		}
     });
 
 	$(window.hyperion).one("cmd-authorize-newPasswordRequired", function(event) {
+		var loginToken = getStorage("loginToken", true)
+
 		if (event.response.info.newPasswordRequired == true)
 		{
 			window.defaultPasswordIsSet = true;
-			requestAuthorization('hyperion');
+			
+			if(loginToken)
+				requestTokenAuthorization(loginToken)
+			else
+				requestAuthorization('hyperion');
 		}
 		else
 		{
 			$("#main-nav").attr('style', 'display:none')
 			$("#top-navbar").attr('style', 'display:none')
 
-			loadContentTo("#page-content", "login")	
+			if(loginToken)
+				requestTokenAuthorization(loginToken)
+			else
+				loadContentTo("#page-content", "login")	
+			
 		}
 	});
 

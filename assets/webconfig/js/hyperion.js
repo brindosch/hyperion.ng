@@ -187,6 +187,11 @@ function requestAuthorization(password)
 	sendToHyperion("authorize","login",'"password": "' + password + '"');
 }
 
+function requestTokenAuthorization(token)
+{
+	sendToHyperion("authorize","login",'"token": "' + token + '"');
+}
+
 function requestToken(comment)
 {
 	sendToHyperion("authorize","createToken",'"comment": "'+comment+'"');
