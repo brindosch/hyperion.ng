@@ -82,11 +82,17 @@ $(document).ready( function() {
 	$(window.hyperion).one("cmd-authorize-login", function(event) {
 		$("#main-nav").removeAttr('style')
 		$("#top-navbar").removeAttr('style')
-		if(window.defaultPasswordIsSet == true)
+		if(window.defaultPasswordIsSet === true)
 			$('#hyperion_default_password_notify').fadeIn().delay(10000).fadeOut();
 
 		requestServerConfigSchema();
 	});
+
+	$(window.hyperion).on("cmd-authorize-newPassword", function(event) {
+        if (event.response.success === true) {
+			showInfoDialog("success",$.i18n('InfoDialog_changePassword_success'));
+		}
+    });
 
 	$(window.hyperion).one("cmd-authorize-newPasswordRequired", function(event) {
 		if (event.response.info.newPasswordRequired == true)
@@ -104,7 +110,7 @@ $(document).ready( function() {
 	});
 
 	$(window.hyperion).one("cmd-authorize-adminRequired", function(event) {
-		if (event.response.info.adminRequired == true) 
+		if (event.response.info.adminRequired === true) 
 			requestRequiresDefaultPasswortChange();
 		else
 			requestServerConfigSchema();
