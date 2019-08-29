@@ -112,6 +112,22 @@ $(document).ready( function() {
 		$('#id_select').trigger('change');
 	});
 
+	//Change Password
+	$('#btn_changePassword').off().on('click',function() {
+		showInfoDialog('changePassword', $.i18n('InfoDialog_changePassword_title'));
+
+		//hyperion 8
+		
+
+		$('#id_btn_ok').off().on('click',function() {
+			var oldPw = $('#oldPw').val();
+			var newPw = $('#newPw').val();
+		
+			//debugger;
+			requestChangePassword(oldPw, newPw)
+		});
+	});
+
 	//hide menu elements
 	if (storedAccess != 'expert')
 		$('#load_webconfig').toggle(false);

@@ -80,7 +80,34 @@ $(document).ready( function() {
     });
 
 	$(window.hyperion).one("cmd-authorize-login", function(event) {
+		$("#main-nav").removeAttr('style')
+		$("#top-navbar").removeAttr('style')
+		if(window.defaultPasswordIsSet == true)
+			$('#hyperion_default_password_notify').fadeIn().delay(10000).fadeOut();
+
 		requestServerConfigSchema();
+	});
+
+	$(window.hyperion).one("cmd-authorize-newPasswordRequired", function(event) {
+		if (event.response.info.newPasswordRequired == true)
+		{
+			window.defaultPasswordIsSet = true;
+			requestAuthorization('hyperion');
+		}
+		else
+		{
+			$("#main-nav").attr('style', 'display:none')
+			$("#top-navbar").attr('style', 'display:none')
+
+			loadContentTo("#page-content", "login")	
+		}
+	});
+
+	$(window.hyperion).one("cmd-authorize-adminRequired", function(event) {
+		if (event.response.info.adminRequired == true) 
+			requestRequiresDefaultPasswortChange();
+		else
+			requestServerConfigSchema();
 	});
 
 	$(window.hyperion).on("error",function(event){
@@ -88,7 +115,7 @@ $(document).ready( function() {
 	});
 
 	$(window.hyperion).on("open",function(event){
-		requestAuthorization();
+		requestRequiresAdminAuth();
 	});
 
 	$(window.hyperion).one("ready", function(event) {
