@@ -128,6 +128,12 @@ $(document).ready( function() {
 		});
 	});
 
+	//Lock Ui
+	$('#btn_lock_ui').off().on('click',function() {
+		removeStorage('loginToken', true);
+		location.replace('/');
+	});
+
 	//hide menu elements
 	if (storedAccess != 'expert')
 		$('#load_webconfig').toggle(false);
