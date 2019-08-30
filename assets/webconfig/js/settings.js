@@ -114,16 +114,12 @@ $(document).ready( function() {
 
 	//Change Password
 	$('#btn_changePassword').off().on('click',function() {
-		showInfoDialog('changePassword', $.i18n('InfoDialog_changePassword_title'));
-
-		//hyperion 8
-		
+		showInfoDialog('changePassword', $.i18n('InfoDialog_changePassword_title'));		
 
 		$('#id_btn_ok').off().on('click',function() {
 			var oldPw = $('#oldPw').val();
 			var newPw = $('#newPw').val();
 		
-			//debugger;
 			requestChangePassword(oldPw, newPw)
 		});
 	});
