@@ -82,9 +82,13 @@ $(document).ready( function() {
 	$(window.hyperion).one("cmd-authorize-login", function(event) {
 		$("#main-nav").removeAttr('style')
 		$("#top-navbar").removeAttr('style')
-		$("#btn_lock_ui").removeAttr('style')
+			
 		if(window.defaultPasswordIsSet === true)
 			$('#hyperion_default_password_notify').fadeIn().delay(10000).fadeOut();
+		else
+			//if logged on and pw != default show option to lock ui
+			$("#btn_lock_ui").removeAttr('style')
+
 					
 		if (event.response.hasOwnProperty('info'))
 			setStorage("loginToken", event.response.info.token, true);
