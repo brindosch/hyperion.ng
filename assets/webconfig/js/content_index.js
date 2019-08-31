@@ -44,6 +44,10 @@ $(document).ready( function() {
 		window.serverInfo.sessions = event.response.data;
 		updateSessions();
 	});
+	
+	$(window.hyperion).on("cmd-instance-stopInstance", function(event) {
+		removeStorage('lastSelectedInstance', false)
+	});
 
 	$(window.hyperion).one("cmd-authorize-getTokenList", function(event) {
 		tokenList = event.response.info;
