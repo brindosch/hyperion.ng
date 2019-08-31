@@ -125,9 +125,6 @@ $(document).ready( function() {
 	});
 
 	$(window.hyperion).on("cmd-instance-update", function(event) {
-		if (getStorage('lastSelectedInstance', false))
-			removeStorage('lastSelectedInstance', false)
-		
 		window.serverInfo.instance = event.response.data
 		var avail = event.response.data;
 		// notify the update
@@ -145,6 +142,10 @@ $(document).ready( function() {
 
 		if(!isInData)
 		{
+			//Delete Storage information about the last used but now stopped instance
+			if (getStorage('lastSelectedInstance', false))
+				removeStorage('lastSelectedInstance', false)
+
 			currentHyperionInstance = 0;
 			currentHyperionInstanceName = getInstanceNameByIndex(0);
 			requestServerConfig();
